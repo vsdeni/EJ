@@ -20,5 +20,7 @@ android {
 }
 
 dependencies {
+    compile 'com.octo.android.robospice:robospice:1.4.+'
+    compile 'com.squareup.retrofit:retrofit:1.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
