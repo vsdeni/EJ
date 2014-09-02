@@ -1,19 +1,24 @@
-package com.vsdeni.ejru;
+package com.vsdeni.ejru.activities;
 
-import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
+import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.model.Category;
+import com.vsdeni.ejru.network.CategoriesRequest;
 
 
-
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
+    CategoriesRequest mCategoriesRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +29,16 @@ public class MainActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+
+        mCategoriesRequest = new CategoriesRequest();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,9 +69,22 @@ public class MainActivity extends Activity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+                                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
+        }
+    }
+
+    class CategoriesRequestListener implements RequestListener<Category.List> {
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            Log.e(TAG, spiceException.getMessage());
+        }
+
+        @Override
+        public void onRequestSuccess(Category.List categories) {
+            Log.i(TAG, "Categories request success");
         }
     }
 }
