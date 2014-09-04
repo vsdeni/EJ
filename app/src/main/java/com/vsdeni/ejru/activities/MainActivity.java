@@ -6,9 +6,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +34,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private static final String TAG = MainActivity.class.getSimpleName();
     private CategoriesRequest mCategoriesRequest;
     private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
     private DrawerAdapter mAdapter;
 
     @Override
@@ -48,6 +52,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mAdapter = new DrawerAdapter(this, null, true);
         mDrawerList.setAdapter(mAdapter);
         mCategoriesRequest = new CategoriesRequest();
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_launcher, R.string.title, R.drawable.ic_launcher);
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
 
         getSupportLoaderManager().initLoader(0, null, this);
     }
@@ -72,6 +84,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            return true;
+        }
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         return super.onOptionsItemSelected(item);
