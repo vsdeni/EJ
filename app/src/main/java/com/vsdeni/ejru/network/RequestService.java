@@ -10,7 +10,7 @@ public class RequestService extends RetrofitGsonSpiceService {
     @Override
     public void onCreate() {
         super.onCreate();
-        addRetrofitInterface(Ej.class);
+        addRetrofitInterface(EjApi.class);
     }
 
     @Override

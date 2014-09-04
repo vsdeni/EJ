@@ -6,10 +6,10 @@ import com.vsdeni.ejru.model.Category;
 /**
  * Created by Admin on 03.09.2014.
  */
-public class CategoriesRequest extends RetrofitSpiceRequest<Category.List, Ej> {
+public class CategoriesRequest extends RetrofitSpiceRequest<Category.List, EjApi> {
 
     public CategoriesRequest() {
-        super(Category.List.class, Ej.class);
+        super(Category.List.class, EjApi.class);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.vsdeni.ejru.activities;
 
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -12,11 +11,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -24,33 +22,37 @@ import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
+import com.vsdeni.ejru.data.HeadersModelColumns;
+import com.vsdeni.ejru.fragments.HeadersFragment;
 import com.vsdeni.ejru.model.Category;
+import com.vsdeni.ejru.model.Header;
 import com.vsdeni.ejru.network.CategoriesRequest;
+import com.vsdeni.ejru.network.HeadersRequest;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+
     private CategoriesRequest mCategoriesRequest;
+    private HeadersRequest mHeadersRequest;
+
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerAdapter mAdapter;
+    private int mCategoryId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.content_frame, new PlaceholderFragment())
-                    .commit();
-        }
 
         mAdapter = new DrawerAdapter(this, null, true);
         mDrawerList.setAdapter(mAdapter);
+        mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -60,7 +62,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-
         getSupportLoaderManager().initLoader(0, null, this);
     }
 
@@ -107,20 +108,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = (Cursor) mAdapter.getItem(position);
+        mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
+        mHeadersRequest = new HeadersRequest(mCategoryId);
+        getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
 
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, HeadersFragment.newInstance(mCategoryId))
+                .commit();
     }
 
     class CategoriesRequestListener implements RequestListener<Category.List> {
@@ -135,6 +133,22 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             Log.i(TAG, "Categories request success");
             if (categories != null) {
                 new SaveCategoriesAsyncTask().execute(categories.getCategories());
+            }
+        }
+    }
+
+    class HeadersRequestListener implements RequestListener<Header.List> {
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            Log.e(TAG, spiceException.getMessage());
+        }
+
+        @Override
+        public void onRequestSuccess(Header.List headers) {
+            Log.i(TAG, "Headers request success");
+            if (headers != null) {
+                new SaveHeadersAsyncTask().execute(mCategoryId, headers.getHeaders());
             }
         }
     }
@@ -161,6 +175,35 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         @Override
         protected void onPostExecute(Void aVoid) {
             getContentResolver().notifyChange(CategoriesModelColumns.URI, null);
+        }
+    }
+
+    private class SaveHeadersAsyncTask extends AsyncTask<Object, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Object... params) {
+            Integer categoryId = (Integer) params[0];
+            ArrayList<Header> data = (ArrayList<Header>) params[1];
+            if (data != null) {
+                ContentResolver resolver = getContentResolver();
+                resolver.delete(HeadersModelColumns.URI, null, null);
+                ContentValues values = new ContentValues(4);
+                for (Header header : data) {
+                    values.clear();
+                    values.put(HeadersModelColumns.ID, header.getId());
+                    values.put(HeadersModelColumns.NAME, header.getName());
+                    values.put(HeadersModelColumns.AUTHOR_ID, header.getAuthorId());
+                    values.put(HeadersModelColumns.TIMESTAMP, header.getTimestamp());
+                    values.put(HeadersModelColumns.CATEGORY_ID, categoryId);
+                    resolver.insert(HeadersModelColumns.URI, values);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            getContentResolver().notifyChange(HeadersModelColumns.URI, null);
         }
     }
 }

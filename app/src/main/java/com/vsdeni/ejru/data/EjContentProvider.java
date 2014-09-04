@@ -24,9 +24,12 @@ public class EjContentProvider extends ContentProvider {
     public static final int DB_VERSION = 1;
 
     public static final String CATEGORIES_TABLE_NAME = "categories";
+    public static final String HEADERS_TABLE_NAME = "headers";
 
     private static final int CATEGORIES = 1;
     private static final int CATEGORY = 2;
+    private static final int HEADERS = 3;
+    private static final int HEADER = 4;
 
     private static UriMatcher sUriMatcher = buildUriMatcher();
 
@@ -37,6 +40,8 @@ public class EjContentProvider extends ContentProvider {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(AUTHORITY, CATEGORIES_TABLE_NAME, CATEGORIES);
         matcher.addURI(AUTHORITY, CATEGORIES_TABLE_NAME + "/#", CATEGORY);
+        matcher.addURI(AUTHORITY, HEADERS_TABLE_NAME, HEADERS);
+        matcher.addURI(AUTHORITY, HEADERS_TABLE_NAME + "/#", HEADER);
         return matcher;
     }
 
@@ -56,6 +61,11 @@ public class EjContentProvider extends ContentProvider {
             case CATEGORY:
                 qb = new SQLiteQueryBuilder();
                 qb.setTables(CATEGORIES_TABLE_NAME);
+                break;
+            case HEADERS:
+            case HEADER:
+                qb = new SQLiteQueryBuilder();
+                qb.setTables(HEADERS_TABLE_NAME);
                 break;
         }
         cursor = qb.query(sDbHelper.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
@@ -78,12 +88,14 @@ public class EjContentProvider extends ContentProvider {
 
         switch (matcherResult) {
             case CATEGORIES:
-                tableToInsertInto = CATEGORIES_TABLE_NAME;
-                contentURIToUse = CategoriesModelColumns.URI;
-                break;
             case CATEGORY:
                 tableToInsertInto = CATEGORIES_TABLE_NAME;
                 contentURIToUse = CategoriesModelColumns.URI;
+                break;
+            case HEADERS:
+            case HEADER:
+                tableToInsertInto = HEADERS_TABLE_NAME;
+                contentURIToUse = HeadersModelColumns.URI;
                 break;
         }
 
@@ -101,8 +113,12 @@ public class EjContentProvider extends ContentProvider {
         int matcherResult = sUriMatcher.match(uri);
         SQLiteDatabase db = sDbHelper.getWritableDatabase();
         switch (matcherResult) {
+            case CATEGORY:
             case CATEGORIES:
                 return db.delete(CATEGORIES_TABLE_NAME, selection, selectionArgs);
+            case HEADER:
+            case HEADERS:
+                return db.delete(HEADERS_TABLE_NAME, selection, selectionArgs);
         }
         return 0;
     }
@@ -117,6 +133,10 @@ public class EjContentProvider extends ContentProvider {
             case CATEGORIES:
             case CATEGORY:
                 tableToInsertInto = CATEGORIES_TABLE_NAME;
+                break;
+            case HEADERS:
+            case HEADER:
+                tableToInsertInto = HEADERS_TABLE_NAME;
                 break;
         }
         rowsUpdated = db.update(tableToInsertInto, values, selection, selectionArgs);
@@ -133,11 +153,20 @@ public class EjContentProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
             try {
-                String createStreamsTable = "CREATE TABLE " + CATEGORIES_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                String createCategoriesTable = "CREATE TABLE " + CATEGORIES_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                         + CategoriesModelColumns.ID + " INTEGER, "
                         + CategoriesModelColumns.NAME + " TEXT "
                         + ");";
-                db.execSQL(createStreamsTable);
+                db.execSQL(createCategoriesTable);
+
+                String createHeadersTable = "CREATE TABLE " + HEADERS_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + HeadersModelColumns.ID + " INTEGER, "
+                        + HeadersModelColumns.NAME + " TEXT, "
+                        + HeadersModelColumns.AUTHOR_ID + " INTEGER, "
+                        + HeadersModelColumns.CATEGORY_ID + " INTEGER, "
+                        + HeadersModelColumns.TIMESTAMP + " TEXT "
+                        + ");";
+                db.execSQL(createHeadersTable);
             } catch (Exception e) {
                 e.printStackTrace();
             }
