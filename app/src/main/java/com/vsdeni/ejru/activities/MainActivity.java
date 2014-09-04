@@ -1,37 +1,55 @@
 package com.vsdeni.ejru.activities;
 
 import android.app.Fragment;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.adapters.DrawerAdapter;
+import com.vsdeni.ejru.data.CategoriesModelColumns;
 import com.vsdeni.ejru.model.Category;
 import com.vsdeni.ejru.network.CategoriesRequest;
 
+import java.util.ArrayList;
 
-public class MainActivity extends BaseActivity {
+
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = MainActivity.class.getSimpleName();
-    CategoriesRequest mCategoriesRequest;
+    private CategoriesRequest mCategoriesRequest;
+    private ListView mDrawerList;
+    private DrawerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.content_frame, new PlaceholderFragment())
                     .commit();
         }
 
-
+        mAdapter = new DrawerAdapter(this, null, true);
+        mDrawerList.setAdapter(mAdapter);
         mCategoriesRequest = new CategoriesRequest();
+
+        getSupportLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -57,6 +75,21 @@ public class MainActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getApplicationContext(), CategoriesModelColumns.URI, null, null, null, CategoriesModelColumns.ID + " ASC");
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     /**
@@ -85,6 +118,34 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onRequestSuccess(Category.List categories) {
             Log.i(TAG, "Categories request success");
+            if (categories != null) {
+                new SaveCategoriesAsyncTask().execute(categories.getCategories());
+            }
+        }
+    }
+
+    private class SaveCategoriesAsyncTask extends AsyncTask<ArrayList<Category>, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ArrayList<Category>... params) {
+            ArrayList<Category> data = params[0];
+            if (data != null) {
+                ContentResolver resolver = getContentResolver();
+                resolver.delete(CategoriesModelColumns.URI, null, null);
+                ContentValues values = new ContentValues(2);
+                for (Category category : data) {
+                    values.clear();
+                    values.put(CategoriesModelColumns.ID, category.getId());
+                    values.put(CategoriesModelColumns.NAME, category.getName());
+                    resolver.insert(CategoriesModelColumns.URI, values);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            getContentResolver().notifyChange(CategoriesModelColumns.URI, null);
         }
     }
 }

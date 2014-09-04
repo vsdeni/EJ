@@ -32,6 +32,10 @@ public class Category {
 
     public static class List {
         @SerializedName("categories")
-        ArrayList<Category> mCategories;
+        private ArrayList<Category> mCategories;
+
+        public ArrayList<Category> getCategories() {
+            return mCategories;
+        }
     }
 }
