@@ -33,6 +33,9 @@ android {
 }
 
 dependencies {
-    compile 'com.octo.android.robospice:robospice-retrofit:1.4.6'
+    compile ("com.octo.android.robospice:robospice-retrofit:1.4.6") {
+        exclude module: 'support-v4'
+    }
+    compile "com.android.support:support-v4:19.0.+"
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
