@@ -14,6 +14,8 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import java.util.HashMap;
+
 /**
  * Created by Admin on 04.09.2014.
  */
@@ -26,6 +28,7 @@ public class EjContentProvider extends ContentProvider {
     public static final String CATEGORIES_TABLE_NAME = "categories";
     public static final String HEADERS_TABLE_NAME = "headers";
     public static final String AUTHORS_TABLE_NAME = "authors";
+    public static final String ARTICLES_TABLE_NAME = "articles";
 
     private static final int CATEGORIES = 1;
     private static final int CATEGORY = 2;
@@ -33,6 +36,8 @@ public class EjContentProvider extends ContentProvider {
     private static final int HEADER = 4;
     private static final int AUTHORS = 5;
     private static final int AUTHOR = 6;
+    private static final int ARTICLES = 7;
+    private static final int ARTICLE = 8;
 
     private static UriMatcher sUriMatcher = buildUriMatcher();
 
@@ -47,6 +52,8 @@ public class EjContentProvider extends ContentProvider {
         matcher.addURI(AUTHORITY, HEADERS_TABLE_NAME + "/#", HEADER);
         matcher.addURI(AUTHORITY, AUTHORS_TABLE_NAME, AUTHORS);
         matcher.addURI(AUTHORITY, AUTHORS_TABLE_NAME + "/#", AUTHOR);
+        matcher.addURI(AUTHORITY, ARTICLES_TABLE_NAME, ARTICLES);
+        matcher.addURI(AUTHORITY, ARTICLES_TABLE_NAME + "/#", ARTICLE);
         return matcher;
     }
 
@@ -70,12 +77,27 @@ public class EjContentProvider extends ContentProvider {
             case HEADERS:
             case HEADER:
                 qb = new SQLiteQueryBuilder();
-                qb.setTables(HEADERS_TABLE_NAME);
+                HashMap<String, String> columnMap = new HashMap<String, String>(2);
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID);
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID);
+                columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + " AS a_id");
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME, HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME);
+                columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME + " AS author_name");
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.CATEGORY_ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns.CATEGORY_ID);
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.TIMESTAMP, HEADERS_TABLE_NAME + "." + HeadersModelColumns.TIMESTAMP);
+                String tables = HEADERS_TABLE_NAME + " LEFT OUTER JOIN " + AUTHORS_TABLE_NAME + " ON (" + HEADERS_TABLE_NAME + "." + HeadersModelColumns.AUTHOR_ID + " = " + AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + ")";
+                qb.setProjectionMap(columnMap);
+                qb.setTables(tables);
                 break;
             case AUTHORS:
             case AUTHOR:
                 qb = new SQLiteQueryBuilder();
                 qb.setTables(AUTHORS_TABLE_NAME);
+                break;
+            case ARTICLES:
+            case ARTICLE:
+                qb = new SQLiteQueryBuilder();
+                qb.setTables(ARTICLES_TABLE_NAME);
                 break;
         }
         cursor = qb.query(sDbHelper.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
@@ -110,7 +132,12 @@ public class EjContentProvider extends ContentProvider {
             case AUTHORS:
             case AUTHOR:
                 tableToInsertInto = AUTHORS_TABLE_NAME;
-                contentURIToUse = HeadersModelColumns.URI;
+                contentURIToUse = AuthorsModelColumns.URI;
+                break;
+            case ARTICLES:
+            case ARTICLE:
+                tableToInsertInto = ARTICLES_TABLE_NAME;
+                contentURIToUse = ArticlesModelColumns.URI;
                 break;
         }
 
@@ -137,6 +164,10 @@ public class EjContentProvider extends ContentProvider {
             case AUTHOR:
             case AUTHORS:
                 return db.delete(AUTHORS_TABLE_NAME, selection, selectionArgs);
+            case ARTICLES:
+            case ARTICLE:
+                return db.delete(ARTICLES_TABLE_NAME, selection, selectionArgs);
+
         }
         return 0;
     }
@@ -159,6 +190,10 @@ public class EjContentProvider extends ContentProvider {
             case AUTHORS:
             case AUTHOR:
                 tableToInsertInto = AUTHORS_TABLE_NAME;
+                break;
+            case ARTICLES:
+            case ARTICLE:
+                tableToInsertInto = ARTICLES_TABLE_NAME;
                 break;
         }
         rowsUpdated = db.update(tableToInsertInto, values, selection, selectionArgs);
@@ -194,7 +229,16 @@ public class EjContentProvider extends ContentProvider {
                         + AuthorsModelColumns.ID + " INTEGER, "
                         + AuthorsModelColumns.NAME + " TEXT "
                         + ");";
-                db.execSQL(createCategoriesTable);
+                db.execSQL(createAuthorsTable);
+
+                String createArticlesTable = "CREATE TABLE " + ARTICLES_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + ArticlesModelColumns.ID + " INTEGER, "
+                        + ArticlesModelColumns.BODY + " TEXT, "
+                        + ArticlesModelColumns.IMAGE_URL + " TEXT, "
+                        + ArticlesModelColumns.CATEGORY_ID + " INTEGER, "
+                        + ArticlesModelColumns.AUTHOR_ID + " INTEGER "
+                        + ");";
+                db.execSQL(createArticlesTable);
             } catch (Exception e) {
                 e.printStackTrace();
             }

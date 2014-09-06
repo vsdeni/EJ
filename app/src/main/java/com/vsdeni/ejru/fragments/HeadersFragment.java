@@ -1,20 +1,25 @@
 package com.vsdeni.ejru.fragments;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 
+import com.vsdeni.ejru.activities.ArticleActivity;
 import com.vsdeni.ejru.adapters.HeadersAdapter;
 import com.vsdeni.ejru.data.HeadersModelColumns;
+import com.vsdeni.ejru.model.Header;
 
 /**
  * Created by Admin on 05.09.2014.
  */
-public class HeadersFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class HeadersFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     private int mCategoryId;
 
     public static HeadersFragment newInstance(int categoryId) {
@@ -42,6 +47,12 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        getListView().setOnItemClickListener(this);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, HeadersModelColumns.CATEGORY_ID + " = " + mCategoryId, null, null);
     }
@@ -54,5 +65,16 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = (Cursor) getListAdapter().getItem(position);
+        Header header = Header.toHeader(cursor);
+        Intent intent = new Intent(getActivity(), ArticleActivity.class);
+        intent.putExtra("article_id", header.getId());
+        intent.putExtra("category_id", header.getCategoryId());
+        intent.putExtra("author_id", header.getAuthorId());
+        startActivity(intent);
     }
 }

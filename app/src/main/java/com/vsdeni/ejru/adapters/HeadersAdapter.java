@@ -52,6 +52,7 @@ public class HeadersAdapter extends CursorAdapter {
             mCalendar.setTimeInMillis(timestamp * 1000);
             tvDate.setText(mDateFormat.format(mCalendar.getTime()));
             tvName.setText(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME)));
+            tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
         }
     }
 }

@@ -26,6 +26,8 @@
 
         <activity android:name=".activities.BaseActivity"></activity>
 
+        <activity android:name=".activities.ArticleActivity"></activity>
+
         <service
             android:name="com.octo.android.robospice.retrofit.RetrofitGsonSpiceService"
             android:exported="false" />
