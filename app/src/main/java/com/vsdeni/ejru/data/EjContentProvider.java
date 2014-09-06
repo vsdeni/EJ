@@ -25,11 +25,14 @@ public class EjContentProvider extends ContentProvider {
 
     public static final String CATEGORIES_TABLE_NAME = "categories";
     public static final String HEADERS_TABLE_NAME = "headers";
+    public static final String AUTHORS_TABLE_NAME = "authors";
 
     private static final int CATEGORIES = 1;
     private static final int CATEGORY = 2;
     private static final int HEADERS = 3;
     private static final int HEADER = 4;
+    private static final int AUTHORS = 5;
+    private static final int AUTHOR = 6;
 
     private static UriMatcher sUriMatcher = buildUriMatcher();
 
@@ -42,6 +45,8 @@ public class EjContentProvider extends ContentProvider {
         matcher.addURI(AUTHORITY, CATEGORIES_TABLE_NAME + "/#", CATEGORY);
         matcher.addURI(AUTHORITY, HEADERS_TABLE_NAME, HEADERS);
         matcher.addURI(AUTHORITY, HEADERS_TABLE_NAME + "/#", HEADER);
+        matcher.addURI(AUTHORITY, AUTHORS_TABLE_NAME, AUTHORS);
+        matcher.addURI(AUTHORITY, AUTHORS_TABLE_NAME + "/#", AUTHOR);
         return matcher;
     }
 
@@ -66,6 +71,11 @@ public class EjContentProvider extends ContentProvider {
             case HEADER:
                 qb = new SQLiteQueryBuilder();
                 qb.setTables(HEADERS_TABLE_NAME);
+                break;
+            case AUTHORS:
+            case AUTHOR:
+                qb = new SQLiteQueryBuilder();
+                qb.setTables(AUTHORS_TABLE_NAME);
                 break;
         }
         cursor = qb.query(sDbHelper.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
@@ -97,6 +107,11 @@ public class EjContentProvider extends ContentProvider {
                 tableToInsertInto = HEADERS_TABLE_NAME;
                 contentURIToUse = HeadersModelColumns.URI;
                 break;
+            case AUTHORS:
+            case AUTHOR:
+                tableToInsertInto = AUTHORS_TABLE_NAME;
+                contentURIToUse = HeadersModelColumns.URI;
+                break;
         }
 
         try {
@@ -119,6 +134,9 @@ public class EjContentProvider extends ContentProvider {
             case HEADER:
             case HEADERS:
                 return db.delete(HEADERS_TABLE_NAME, selection, selectionArgs);
+            case AUTHOR:
+            case AUTHORS:
+                return db.delete(AUTHORS_TABLE_NAME, selection, selectionArgs);
         }
         return 0;
     }
@@ -137,6 +155,10 @@ public class EjContentProvider extends ContentProvider {
             case HEADERS:
             case HEADER:
                 tableToInsertInto = HEADERS_TABLE_NAME;
+                break;
+            case AUTHORS:
+            case AUTHOR:
+                tableToInsertInto = AUTHORS_TABLE_NAME;
                 break;
         }
         rowsUpdated = db.update(tableToInsertInto, values, selection, selectionArgs);
@@ -167,6 +189,12 @@ public class EjContentProvider extends ContentProvider {
                         + HeadersModelColumns.TIMESTAMP + " TEXT "
                         + ");";
                 db.execSQL(createHeadersTable);
+
+                String createAuthorsTable = "CREATE TABLE " + AUTHORS_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + AuthorsModelColumns.ID + " INTEGER, "
+                        + AuthorsModelColumns.NAME + " TEXT "
+                        + ");";
+                db.execSQL(createCategoriesTable);
             } catch (Exception e) {
                 e.printStackTrace();
             }

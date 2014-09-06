@@ -21,11 +21,14 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
+import com.vsdeni.ejru.data.AuthorsModelColumns;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 import com.vsdeni.ejru.fragments.HeadersFragment;
+import com.vsdeni.ejru.model.Author;
 import com.vsdeni.ejru.model.Category;
 import com.vsdeni.ejru.model.Header;
+import com.vsdeni.ejru.network.AuthorsRequest;
 import com.vsdeni.ejru.network.CategoriesRequest;
 import com.vsdeni.ejru.network.HeadersRequest;
 
@@ -37,6 +40,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private CategoriesRequest mCategoriesRequest;
     private HeadersRequest mHeadersRequest;
+    private AuthorsRequest mAuthorsRequest;
 
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
@@ -58,6 +62,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
+        mAuthorsRequest = new AuthorsRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -83,6 +88,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onStart() {
         super.onStart();
+        getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
         getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
     }
 
@@ -151,6 +157,22 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
     }
 
+    class AuthorsRequestListener implements RequestListener<Author.List> {
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            Log.e(TAG, spiceException.getMessage());
+        }
+
+        @Override
+        public void onRequestSuccess(Author.List authors) {
+            Log.i(TAG, "Authors request success");
+            if (authors != null) {
+                new SaveAuthorsAsyncTask().execute(authors.getAuthors());
+            }
+        }
+    }
+
     class HeadersRequestListener implements RequestListener<Header.List> {
 
         @Override
@@ -164,6 +186,31 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             if (headers != null) {
                 new SaveHeadersAsyncTask().execute(mCategoryId, headers.getHeaders());
             }
+        }
+    }
+
+    private class SaveAuthorsAsyncTask extends AsyncTask<ArrayList<Author>, Void, Void> {
+
+        @Override
+        protected Void doInBackground(ArrayList<Author>... params) {
+            ArrayList<Author> data = params[0];
+            if (data != null) {
+                ContentResolver resolver = getContentResolver();
+                resolver.delete(AuthorsModelColumns.URI, null, null);
+                ContentValues values = new ContentValues(2);
+                for (Author author : data) {
+                    values.clear();
+                    values.put(AuthorsModelColumns.ID, author.getId());
+                    values.put(AuthorsModelColumns.NAME, author.getName());
+                    resolver.insert(AuthorsModelColumns.URI, values);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            getContentResolver().notifyChange(AuthorsModelColumns.URI, null);
         }
     }
 
