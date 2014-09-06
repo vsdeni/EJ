@@ -11,15 +11,23 @@ import android.widget.TextView;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 /**
  * Created by Admin on 05.09.2014.
  */
 public class HeadersAdapter extends CursorAdapter {
     private LayoutInflater mLayoutInflater;
+    private SimpleDateFormat mDateFormat;
+    private Calendar mCalendar;
 
     public HeadersAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mDateFormat = new SimpleDateFormat("d MMM, yyyy", Locale.getDefault());
+        mCalendar = Calendar.getInstance(Locale.getDefault());
     }
 
     public HeadersAdapter(Context context, Cursor c, int flags) {
@@ -40,6 +48,9 @@ public class HeadersAdapter extends CursorAdapter {
             TextView tvDate = (TextView) view.findViewById(R.id.tv_header_date);
             TextView tvName = (TextView) view.findViewById(R.id.tv_header_name);
 
+            long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
+            mCalendar.setTimeInMillis(timestamp * 1000);
+            tvDate.setText(mDateFormat.format(mCalendar.getTime()));
             tvName.setText(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME)));
         }
     }

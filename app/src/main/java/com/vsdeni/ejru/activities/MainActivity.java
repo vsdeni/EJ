@@ -42,7 +42,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerAdapter mAdapter;
+
     private int mCategoryId;
+    private String mCategoryName;
+
+    private HeadersFragment mHeadersFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
+
+        if (savedInstanceState == null) {
+            mHeadersFragment = new HeadersFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.content_frame, mHeadersFragment, "headers")
+                    .commit();
+        } else {
+            mHeadersFragment = (HeadersFragment) getSupportFragmentManager().findFragmentByTag("headers");
+        }
+
         getSupportLoaderManager().initLoader(0, null, this);
     }
 
@@ -112,13 +127,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) mAdapter.getItem(position);
         mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
+        mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
+        mHeadersFragment.setCategoryId(mCategoryId);
         mHeadersRequest = new HeadersRequest(mCategoryId);
+        setTitle(mCategoryName);
+        mDrawerLayout.closeDrawers();
         getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, HeadersFragment.newInstance(mCategoryId))
-                .commit();
     }
 
     class CategoriesRequestListener implements RequestListener<Category.List> {

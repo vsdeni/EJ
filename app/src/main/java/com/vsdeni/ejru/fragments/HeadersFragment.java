@@ -25,6 +25,11 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
         return fr;
     }
 
+    public void setCategoryId(int categoryId) {
+        mCategoryId = categoryId;
+        getLoaderManager().restartLoader(1, null, this);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +39,6 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
         }
 
         setListAdapter(new HeadersAdapter(getActivity(), null, true));
-        getActivity().getSupportLoaderManager().initLoader(1, null, this);
     }
 
     @Override
