@@ -2,6 +2,7 @@ package com.vsdeni.ejru.activities;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
  */
 public class ArticleActivity extends BaseActivity {
     private final static String TAG = ArticleActivity.class.getSimpleName();
+
+    private boolean mArticleAlreadyInCache;
 
     private ArticleRequest mArticleRequest;
     private int mArticleId;
@@ -52,6 +55,11 @@ public class ArticleActivity extends BaseActivity {
                     .commit();
         }
 
+        Cursor cursor = getContentResolver().query(ArticlesModelColumns.URI, new String[]{ArticlesModelColumns._ID}, ArticlesModelColumns.ID + "=" + mArticleId, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            mArticleAlreadyInCache = true;
+        }
+
         mArticleRequest = new ArticleRequest(mArticleId);
 
     }
@@ -59,7 +67,9 @@ public class ArticleActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
+        if (!mArticleAlreadyInCache) {
+            getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
+        }
     }
 
     @Override
@@ -90,17 +100,43 @@ public class ArticleActivity extends BaseActivity {
 
     private class SaveArticleAsyncTask extends AsyncTask<ArrayList<Article>, Void, Void> {
 
+        private String getBodyWithoutRedundantTags(String text) {
+            int tagOpenPosition = text.indexOf("<img src=");
+            while (tagOpenPosition >= 0) {
+                int tagEndPosition = text.indexOf(">", tagOpenPosition);
+                if (tagEndPosition > 0) {
+                    if (tagOpenPosition >= 3) {
+                        String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
+                        if (tagBefore.equals("<p>")) {
+                            tagOpenPosition = tagOpenPosition - 3;
+                        }
+                    }
+                    String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
+                    text = text.replace(tagContent, "");
+                }
+                tagOpenPosition = text.indexOf("<img src=");
+            }
+
+            tagOpenPosition = text.indexOf("<br");
+            while (tagOpenPosition == 0) {
+                text = text.substring(6);
+                tagOpenPosition = text.indexOf("<br");
+            }
+
+            return text;
+        }
+
         @Override
         protected Void doInBackground(ArrayList<Article>... params) {
             ArrayList<Article> data = params[0];
             if (data != null) {
                 ContentResolver resolver = getContentResolver();
                 resolver.delete(ArticlesModelColumns.URI, ArticlesModelColumns.ID + " = " + mArticleId, null);
-                ContentValues values = new ContentValues(2);
+                ContentValues values = new ContentValues(5);
                 for (Article article : data) {
                     values.clear();
                     values.put(ArticlesModelColumns.ID, mArticleId);
-                    values.put(ArticlesModelColumns.BODY, article.getBody());
+                    values.put(ArticlesModelColumns.BODY, getBodyWithoutRedundantTags(article.getBody()));
                     values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
                     values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
                     values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);

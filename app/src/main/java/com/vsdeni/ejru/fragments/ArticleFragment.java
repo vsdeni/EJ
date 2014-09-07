@@ -7,9 +7,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.vsdeni.ejru.R;
@@ -23,6 +25,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private int mId;
 
     private TextView mBody;
+    private ImageView mImage;
 
     public static ArticleFragment newInstance(int id) {
         ArticleFragment fr = new ArticleFragment();
@@ -36,6 +39,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_article, container, false);
         mBody = (TextView) view.findViewById(R.id.tv_article_body);
+        mBody.setMovementMethod(LinkMovementMethod.getInstance());
+        mImage = (ImageView) view.findViewById(R.id.iv_article_image);
         return view;
     }
 
