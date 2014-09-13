@@ -87,13 +87,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
-        getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -123,6 +116,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
+        if (data == null || data.getCount() == 0) {
+            getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
+            getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
+        } else {
+            setPage(0);
+        }
     }
 
     @Override
@@ -130,8 +129,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    private void setPage(int position) {
         Cursor cursor = (Cursor) mAdapter.getItem(position);
         mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
         mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
@@ -140,6 +138,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         setTitle(mCategoryName);
         mDrawerLayout.closeDrawers();
         getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        setPage(position);
     }
 
     class CategoriesRequestListener implements RequestListener<Category.List> {

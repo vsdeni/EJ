@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;
@@ -67,6 +68,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             if (data != null && data.moveToFirst()) {
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
+
+               // ImageLoader.getInstance().displayImage(article.getImageUrl(), mImage);
             }
         }
     }
