@@ -1,40 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:padding="10dp"
-    android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:paddingLeft="10dp"
+                android:layout_height="80dp">
 
     <ImageView
         android:layout_alignParentRight="true"
         android:id="@+id/iv_header_thumbnail"
-        android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_width="80dp"
+        android:scaleType="centerCrop"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:id="@+id/tv_header_name"
-        android:textSize="18sp"
+        android:layout_marginTop="5dp"
+        android:textSize="16sp"
+        android:lines="2"
+        android:layout_toLeftOf="@id/iv_header_thumbnail"
+        android:layout_marginRight="5dp"
         android:text="asdf"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <TextView
-        android:layout_below="@id/tv_header_name"
+        android:layout_alignParentBottom="true"
         android:id="@+id/tv_header_date"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
         android:text="asdfa"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <TextView
         android:layout_alignTop="@id/tv_header_date"
         android:id="@+id/tv_header_author"
         android:textSize="12sp"
+        android:layout_alignParentBottom="true"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="5dp"
         android:layout_marginRight="5dp"
         android:text="adf"
         android:layout_toLeftOf="@id/iv_header_thumbnail"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

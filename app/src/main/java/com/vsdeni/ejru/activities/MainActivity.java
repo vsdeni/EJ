@@ -74,6 +74,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         if (savedInstanceState == null) {
             mHeadersFragment = new HeadersFragment();
+            mHeadersFragment.setRetainInstance(true);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.content_frame, mHeadersFragment, "headers")

@@ -3,6 +3,7 @@ package com.vsdeni.ejru;
 import android.app.Application;
 
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -13,10 +14,18 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        DisplayImageOptions defaultDisplayOptions = new DisplayImageOptions.Builder()
+                .resetViewBeforeLoading(true)
+                .cacheInMemory(false)
+                .cacheOnDisk(true)
+                .build();
+
         // Create global configuration and initialize ImageLoader with this configuration
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
                 .memoryCache(new LruMemoryCache(5 * 1024 * 1024))
                 .diskCacheFileCount(100)
+                .defaultDisplayImageOptions(defaultDisplayOptions)
                 .build();
         ImageLoader.getInstance().init(config);
     }
