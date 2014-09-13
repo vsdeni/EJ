@@ -2,12 +2,15 @@ package com.vsdeni.ejru.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 
@@ -47,6 +50,12 @@ public class HeadersAdapter extends CursorAdapter {
             TextView tvAuthor = (TextView) view.findViewById(R.id.tv_header_author);
             TextView tvDate = (TextView) view.findViewById(R.id.tv_header_date);
             TextView tvName = (TextView) view.findViewById(R.id.tv_header_name);
+            ImageView ivThumbnail = (ImageView) view.findViewById(R.id.iv_header_thumbnail);
+
+            int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
+            String thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
+
+            ImageLoader.getInstance().displayImage(thumbnailUrl, ivThumbnail);
 
             long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
             mCalendar.setTimeInMillis(timestamp * 1000);

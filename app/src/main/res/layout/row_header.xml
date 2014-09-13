@@ -5,9 +5,16 @@
     android:padding="10dp"
     android:layout_height="wrap_content">
 
+    <ImageView
+        android:layout_alignParentRight="true"
+        android:id="@+id/iv_header_thumbnail"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
     <TextView
         android:id="@+id/tv_header_name"
         android:textSize="18sp"
+        android:text="asdf"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -16,14 +23,18 @@
         android:id="@+id/tv_header_date"
         android:layout_marginTop="5dp"
         android:textSize="12sp"
+        android:text="asdfa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
         android:layout_alignTop="@id/tv_header_date"
-        android:layout_alignParentRight="true"
         android:id="@+id/tv_header_author"
         android:textSize="12sp"
+        android:layout_marginRight="5dp"
+        android:text="adf"
+        android:layout_toLeftOf="@id/iv_header_thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
 </RelativeLayout>
