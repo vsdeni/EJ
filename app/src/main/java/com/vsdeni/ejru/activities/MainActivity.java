@@ -28,6 +28,7 @@ import com.vsdeni.ejru.fragments.HeadersFragment;
 import com.vsdeni.ejru.model.Author;
 import com.vsdeni.ejru.model.Category;
 import com.vsdeni.ejru.model.Header;
+import com.vsdeni.ejru.network.AllHeadersRequest;
 import com.vsdeni.ejru.network.AuthorsRequest;
 import com.vsdeni.ejru.network.CategoriesRequest;
 import com.vsdeni.ejru.network.HeadersRequest;
@@ -40,6 +41,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private CategoriesRequest mCategoriesRequest;
     private HeadersRequest mHeadersRequest;
+    private AllHeadersRequest mAllHeadersRequest;
     private AuthorsRequest mAuthorsRequest;
 
     private ListView mDrawerList;
@@ -63,6 +65,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
+        mAllHeadersRequest = new AllHeadersRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
