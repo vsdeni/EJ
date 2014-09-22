@@ -67,7 +67,7 @@ public class EjContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         int matcherResult = sUriMatcher.match(uri);
         SQLiteQueryBuilder qb = null;
-        Cursor cursor = null;
+        Cursor cursor;
         switch (matcherResult) {
             case CATEGORIES:
             case CATEGORY:
@@ -80,6 +80,8 @@ public class EjContentProvider extends ContentProvider {
                 HashMap<String, String> columnMap = new HashMap<String, String>(2);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID);
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.SPOILER, HEADERS_TABLE_NAME + "." + HeadersModelColumns.SPOILER);
+                columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.THUMBNAIL_URL, HEADERS_TABLE_NAME + "." + HeadersModelColumns.THUMBNAIL_URL);
                 columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + " AS a_id");
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME, HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME);
                 columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME + " AS author_name");
@@ -113,7 +115,7 @@ public class EjContentProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         int matcherResult = sUriMatcher.match(uri);
-        long rowId = -1;
+        long rowId;
         String tableToInsertInto = null;
         Uri contentURIToUse = null;
         SQLiteDatabase db = sDbHelper.getWritableDatabase();
@@ -174,7 +176,7 @@ public class EjContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        int rowsUpdated = 0;
+        int rowsUpdated;
         int matcherResult = sUriMatcher.match(uri);
         String tableToInsertInto = null;
         SQLiteDatabase db = sDbHelper.getWritableDatabase();
@@ -219,6 +221,8 @@ public class EjContentProvider extends ContentProvider {
                 String createHeadersTable = "CREATE TABLE " + HEADERS_TABLE_NAME + " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                         + HeadersModelColumns.ID + " INTEGER, "
                         + HeadersModelColumns.NAME + " TEXT, "
+                        + HeadersModelColumns.SPOILER + " TEXT, "
+                        + HeadersModelColumns.THUMBNAIL_URL + " TEXT, "
                         + HeadersModelColumns.AUTHOR_ID + " INTEGER, "
                         + HeadersModelColumns.CATEGORY_ID + " INTEGER, "
                         + HeadersModelColumns.TIMESTAMP + " TEXT "

@@ -259,7 +259,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                     values.put(HeadersModelColumns.NAME, header.getName());
                     values.put(HeadersModelColumns.AUTHOR_ID, header.getAuthorId());
                     values.put(HeadersModelColumns.TIMESTAMP, header.getTimestamp());
-                    values.put(HeadersModelColumns.CATEGORY_ID, categoryId);
+                    values.put(HeadersModelColumns.CATEGORY_ID, header.getCategoryId());
+                    values.put(HeadersModelColumns.SPOILER, header.getSpoiler());
+                    values.put(HeadersModelColumns.THUMBNAIL_URL, header.getThumbnailUrl());
                     resolver.insert(HeadersModelColumns.URI, values);
                 }
             }

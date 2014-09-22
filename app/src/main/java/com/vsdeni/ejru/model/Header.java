@@ -23,7 +23,14 @@ public class Header {
     @SerializedName("timestamp")
     private long mTimestamp;
 
+    @SerializedName("category_id")
     private int mCategoryId;
+
+    @SerializedName("spoiler")
+    private String mSpoiler;
+
+    @SerializedName("thumbnail_url")
+    private String mThumbnailUrl;
 
     public static Header toHeader(Cursor cursor) {
         if (cursor != null) {
@@ -33,6 +40,8 @@ public class Header {
             header.setName(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME)));
             header.setTimestamp(cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP)));
             header.setCategoryId(cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.CATEGORY_ID)));
+            header.setSpoiler(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER)));
+            header.setThumbnailUrl(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL)));
             return header;
         }
         return null;
@@ -76,6 +85,22 @@ public class Header {
 
     public void setCategoryId(int categoryId) {
         mCategoryId = categoryId;
+    }
+
+    public String getSpoiler() {
+        return mSpoiler;
+    }
+
+    public void setSpoiler(String spoiler) {
+        mSpoiler = spoiler;
+    }
+
+    public String getThumbnailUrl() {
+        return mThumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        mThumbnailUrl = thumbnailUrl;
     }
 
     public static class List {

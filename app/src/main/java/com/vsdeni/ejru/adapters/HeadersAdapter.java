@@ -3,6 +3,7 @@ package com.vsdeni.ejru.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.Image;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,10 +51,11 @@ public class HeadersAdapter extends CursorAdapter {
             TextView tvAuthor = (TextView) view.findViewById(R.id.tv_header_author);
             TextView tvDate = (TextView) view.findViewById(R.id.tv_header_date);
             TextView tvName = (TextView) view.findViewById(R.id.tv_header_name);
+            TextView tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
             ImageView ivThumbnail = (ImageView) view.findViewById(R.id.iv_header_thumbnail);
 
-            int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
-            String thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
+
+            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL));
 
             ImageLoader.getInstance().displayImage(thumbnailUrl, ivThumbnail);
 
@@ -62,6 +64,7 @@ public class HeadersAdapter extends CursorAdapter {
             tvDate.setText(mDateFormat.format(mCalendar.getTime()));
             tvName.setText(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME)));
             tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
+            tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
         }
     }
 }

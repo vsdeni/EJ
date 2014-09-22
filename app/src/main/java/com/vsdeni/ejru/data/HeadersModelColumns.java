@@ -14,4 +14,6 @@ public class HeadersModelColumns implements BaseColumns {
     public static final String AUTHOR_ID = "author_id";
     public static final String TIMESTAMP = "timestamp";
     public static final String CATEGORY_ID = "category_id";
+    public static final String SPOILER = "spoiler";
+    public static final String THUMBNAIL_URL = "thumbnail_url";
 }
