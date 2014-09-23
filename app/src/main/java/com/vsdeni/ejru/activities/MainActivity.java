@@ -28,10 +28,9 @@ import com.vsdeni.ejru.fragments.HeadersFragment;
 import com.vsdeni.ejru.model.Author;
 import com.vsdeni.ejru.model.Category;
 import com.vsdeni.ejru.model.Header;
-import com.vsdeni.ejru.network.AllHeadersRequest;
+import com.vsdeni.ejru.network.HeadersRequest;
 import com.vsdeni.ejru.network.AuthorsRequest;
 import com.vsdeni.ejru.network.CategoriesRequest;
-import com.vsdeni.ejru.network.HeadersRequest;
 
 import java.util.ArrayList;
 
@@ -41,7 +40,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private CategoriesRequest mCategoriesRequest;
     private HeadersRequest mHeadersRequest;
-    private AllHeadersRequest mAllHeadersRequest;
     private AuthorsRequest mAuthorsRequest;
 
     private ListView mDrawerList;
@@ -65,7 +63,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
-        mAllHeadersRequest = new AllHeadersRequest();
+        mHeadersRequest = new HeadersRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -87,6 +85,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
 
         getSupportLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
     }
 
     @Override
@@ -137,10 +141,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
         mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
         mHeadersFragment.setCategoryId(mCategoryId);
-        mHeadersRequest = new HeadersRequest(mCategoryId);
         setTitle(mCategoryName);
         mDrawerLayout.closeDrawers();
-        getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
     }
 
     @Override
@@ -227,6 +229,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         protected Void doInBackground(ArrayList<Category>... params) {
             ArrayList<Category> data = params[0];
             if (data != null) {
+                data.add(0,new Category(0,getString(R.string.main_category)));
                 ContentResolver resolver = getContentResolver();
                 resolver.delete(CategoriesModelColumns.URI, null, null);
                 ContentValues values = new ContentValues(2);
@@ -250,7 +253,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         protected Void doInBackground(Object... params) {
-            Integer categoryId = (Integer) params[0];
             ArrayList<Header> data = (ArrayList<Header>) params[1];
             if (data != null) {
                 ContentResolver resolver = getContentResolver();

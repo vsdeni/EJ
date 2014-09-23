@@ -54,7 +54,11 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, HeadersModelColumns.CATEGORY_ID + " = " + mCategoryId, null, null);
+        if (mCategoryId == 0){
+            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, null, null, null);
+        } else {
+            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, HeadersModelColumns.CATEGORY_ID + " = " + mCategoryId, null, null);
+        }
     }
 
     @Override

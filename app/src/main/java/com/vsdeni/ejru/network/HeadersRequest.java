@@ -7,15 +7,12 @@ import com.vsdeni.ejru.model.Header;
  * Created by Admin on 03.09.2014.
  */
 public class HeadersRequest extends RetrofitSpiceRequest<Header.List, EjApi> {
-    private int mCategoryId;
-
-    public HeadersRequest(int categoryId) {
+    public HeadersRequest() {
         super(Header.List.class, EjApi.class);
-        mCategoryId = categoryId;
     }
 
     @Override
     public Header.List loadDataFromNetwork() throws Exception {
-        return getService().getHeaders(mCategoryId);
+        return getService().getAllHeaders();
     }
 }

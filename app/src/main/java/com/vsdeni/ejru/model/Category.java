@@ -30,6 +30,14 @@ public class Category {
         this.mName = name;
     }
 
+    public Category(int id, String name){
+        mId = id;
+        mName = name;
+    }
+
+    public Category(){
+    }
+
     public static class List {
         @SerializedName("categories")
         private ArrayList<Category> mCategories;
