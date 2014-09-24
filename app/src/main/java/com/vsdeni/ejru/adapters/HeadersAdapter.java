@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.RenderScript;
@@ -59,46 +59,10 @@ public class HeadersAdapter extends CursorAdapter {
         return view;
     }
 
-    private void applyBlur(final ImageView imageView, final TextView textView) {
-        imageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                imageView.getViewTreeObserver().removeOnPreDrawListener(this);
-                imageView.buildDrawingCache();
-
-                Bitmap bitmap = imageView.getDrawingCache();
-                blur(bitmap, textView);
-                return true;
-            }
-        });
-    }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void blur(Bitmap bkg, View view) {
-        long startMs = System.currentTimeMillis();
-        float radius = 20;
-        Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()),
-                (int) (view.getMeasuredHeight()), Bitmap.Config.ARGB_8888);
 
-        Canvas canvas = new Canvas(overlay);
-        canvas.translate(-view.getLeft(), -view.getTop());
-        canvas.drawBitmap(bkg, 0, 0, null);
-
-        RenderScript rs = RenderScript.create(mContext);
-        Allocation overlayAlloc = Allocation.createFromBitmap(
-                rs, overlay);
-        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(
-                rs, overlayAlloc.getElement());
-
-        blur.setInput(overlayAlloc);
-        blur.setRadius(radius);
-        blur.forEach(overlayAlloc);
-        overlayAlloc.copyTo(overlay);
-
-        view.setBackground(new BitmapDrawable(
-                mContext.getResources(), overlay));
-
-        rs.destroy();
     }
 
     @Override
@@ -110,6 +74,7 @@ public class HeadersAdapter extends CursorAdapter {
             TextView tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
             final ImageView ivThumbnail = (ImageView) view.findViewById(R.id.iv_thumbnail);
             final TextView tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
+            final View blurView = view.findViewById(R.id.blur);
 
             String thumbnailUrl = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL));
             int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
@@ -118,11 +83,12 @@ public class HeadersAdapter extends CursorAdapter {
 
             tvThumbnail.setText(name);
 
-            //if (TextUtils.isEmpty(thumbnailUrl)){
-            thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
-            //}
+            if (TextUtils.isEmpty(thumbnailUrl)) {
+                thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
+            }
 
-            ImageLoader.getInstance().displayImage(thumbnailUrl, ivThumbnail);
+            ivThumbnail.setImageResource(0);
+
             ImageLoader.getInstance().loadImage(thumbnailUrl, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
@@ -137,7 +103,16 @@ public class HeadersAdapter extends CursorAdapter {
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                     ivThumbnail.setImageBitmap(loadedImage);
-                    applyBlur(ivThumbnail, tvThumbnail);
+
+                    ivThumbnail.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
+                        public boolean onPreDraw() {
+                            ivThumbnail.getViewTreeObserver().removeOnPreDrawListener(this);
+                            ivThumbnail.buildDrawingCache();
+                            new BlurAsyncTask(ivThumbnail.getDrawingCache(), blurView).execute();
+                            return true;
+                        }
+                    });
                 }
 
                 @Override
@@ -152,6 +127,61 @@ public class HeadersAdapter extends CursorAdapter {
             tvName.setText(name);
             tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
             tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
+        }
+    }
+
+    private class BlurAsyncTask extends AsyncTask<Void, Void, Bitmap> {
+        View mView;
+        Bitmap mSource;
+        int mThumbnailWidht;
+        int mThumbnailHeight;
+
+
+        public BlurAsyncTask(Bitmap source, View view) {
+            mSource = source;
+            mView = view;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mThumbnailHeight = mView.getMeasuredHeight();
+            mThumbnailWidht = mView.getMeasuredWidth();
+            super.onPreExecute();
+        }
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            long startMs = System.currentTimeMillis();
+            float radius = 10;
+            Bitmap overlay = Bitmap.createBitmap((int) (mThumbnailWidht),
+                    (int) (mThumbnailHeight), Bitmap.Config.ARGB_8888);
+
+            Canvas canvas = new Canvas(overlay);
+            canvas.translate(0, 0);
+            canvas.drawBitmap(mSource, 0, 0, null);
+
+            RenderScript rs = RenderScript.create(mContext);
+            Allocation overlayAlloc = Allocation.createFromBitmap(
+                    rs, overlay);
+            ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(
+                    rs, overlayAlloc.getElement());
+
+            blur.setInput(overlayAlloc);
+            blur.setRadius(radius);
+            blur.forEach(overlayAlloc);
+            overlayAlloc.copyTo(overlay);
+
+            rs.destroy();
+            return overlay;
+        }
+
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            mView.setBackground(new BitmapDrawable(
+                    mContext.getResources(), bitmap));
+            super.onPostExecute(bitmap);
         }
     }
 }

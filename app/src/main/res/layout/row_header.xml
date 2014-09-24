@@ -7,7 +7,7 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp">
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/thumbnail_holder"
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -19,15 +19,24 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"/>
 
-        <TextView
-            android:padding="10dp"
-            android:gravity="center_vertical"
-            android:textSize="20sp"
-            android:textColor="@android:color/white"
-            android:id="@+id/tv_thumbnail"
+        <View
+            android:id="@+id/blur"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-    </FrameLayout>
+
+        <com.vsdeni.ejru.TitleTextView
+            android:layout_margin="10dp"
+            android:id="@+id/tv_thumbnail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            android:gravity="center_vertical"
+            android:padding="3dp"
+            android:text="Итоги недели. Ничего личного"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"/>
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_header_name"
