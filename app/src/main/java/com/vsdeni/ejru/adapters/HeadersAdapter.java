@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,7 +15,12 @@ import android.renderscript.Allocation;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.text.Html;
+import android.text.Layout;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ReplacementSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +33,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.TitleTextView;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 
 import java.text.SimpleDateFormat;
@@ -82,6 +91,41 @@ public class HeadersAdapter extends CursorAdapter {
             final String name = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME));
 
             tvThumbnail.setText(name);
+
+            tvThumbnail.post(new Runnable() {
+                @Override
+                public void run() {
+                    int start = 0;
+                    int end = 0;
+                    int count = tvThumbnail.getLineCount();
+
+                    if (count == 1) {
+                        SpannableString spannableString = new SpannableString(name + " ");
+                        spannableString.setSpan(new RoundedBackgroundSpan(), 0, name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        tvThumbnail.setText(spannableString);
+                    } else {
+                        Layout layout = tvThumbnail.getLayout();
+                        SpannableStringBuilder spannableString = new SpannableStringBuilder();
+                        for (int i = 0; i < count; i++) {
+                            end = layout.getLineEnd(i);
+                            spannableString.append(name.substring(start, end));
+
+                            int spanStart = start;
+                            int spanEnd = end;
+                            if (i > 0) {
+                                spanStart += i;
+                                spanEnd += i;
+                            }
+                            spannableString.setSpan(new RoundedBackgroundSpan(), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            if (i < count - 1) {
+                                spannableString.append("\n");
+                            }
+                            start = end;
+                        }
+                        tvThumbnail.setText(spannableString);
+                    }
+                }
+            });
 
             if (TextUtils.isEmpty(thumbnailUrl)) {
                 thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
@@ -182,6 +226,27 @@ public class HeadersAdapter extends CursorAdapter {
             mView.setBackground(new BitmapDrawable(
                     mContext.getResources(), bitmap));
             super.onPostExecute(bitmap);
+        }
+    }
+
+    public class RoundedBackgroundSpan extends ReplacementSpan {
+
+        @Override
+        public int getSize(Paint paint, CharSequence charSequence, int i, int i2, Paint.FontMetricsInt fontMetricsInt) {
+            return Math.round(measureText(paint, charSequence, i, i2));
+        }
+
+        @Override
+        public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+            RectF rect = new RectF(x, top, x + measureText(paint, text, start, end), bottom);
+            paint.setColor(Color.parseColor("#BBFFFFFF"));
+            canvas.drawRect(rect, paint);
+            paint.setColor(mContext.getResources().getColor(android.R.color.black));
+            canvas.drawText(text, start, end, x, y, paint);
+        }
+
+        private float measureText(Paint paint, CharSequence text, int start, int end) {
+            return paint.measureText(text, start, end);
         }
     }
 }

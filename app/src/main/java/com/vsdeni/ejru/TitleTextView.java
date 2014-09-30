@@ -20,6 +20,12 @@ import android.widget.TextView;
  * Created by denis on 9/24/14.
  */
 public class TitleTextView extends TextView {
+    Paint mPaint;
+
+    public float pixelsToSp(float px) {
+        float scaledDensity = getContext().getResources().getDisplayMetrics().scaledDensity;
+        return px / scaledDensity;
+    }
 
     public TitleTextView(Context context) {
         super(context);
@@ -39,16 +45,21 @@ public class TitleTextView extends TextView {
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
-        int start = 0;
-        SpannableString spannableString = new SpannableString(text);
-        for (int i = 0; i < getLineCount(); i++) {
-            int end = getLayout().getLineStart(i);
-            if (end > start) {
-                spannableString.setSpan(new RoundedBackgroundSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                start = end + 1;
-            }
-        }
-        super.setText(spannableString, type);
+//        mPaint = new Paint();
+//        mPaint.setTextSize(pixelsToSp(20f));
+//        Rect bounds = new Rect();
+//        mPaint.getTextBounds(text.toString(), 0, text.length(), bounds);
+//        int width = (int) Math.ceil( bounds.width());
+
+//        float width = mPaint.measureText(text.toString());
+//        int start = 0;
+//        for (int i = 0; i < getLineCount(); i++) {
+//            int end = getLayout().getLineStart(i);
+//            if (end > start) {
+
+//                start = end + 1;
+//            }
+//        }
     }
 
     private void init() {
