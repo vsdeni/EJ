@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.TitleTextView;
@@ -48,6 +49,8 @@ public class HeadersAdapter extends CursorAdapter {
     private SimpleDateFormat mDateFormat;
     private Calendar mCalendar;
     private Context mContext;
+    private int mThumbnailHeight;
+    private int mThumbnailWidht;
 
     public HeadersAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
@@ -65,6 +68,15 @@ public class HeadersAdapter extends CursorAdapter {
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         View view = mLayoutInflater.inflate(R.layout.row_header, parent, false);
+        ViewHolder viewHolder = new ViewHolder();
+        viewHolder.tvAuthor = (TextView) view.findViewById(R.id.tv_header_author);
+        viewHolder.tvDate = (TextView) view.findViewById(R.id.tv_header_date);
+        viewHolder.tvName = (TextView) view.findViewById(R.id.tv_header_name);
+        viewHolder.tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
+        viewHolder.ivThumbnail = (ImageView) view.findViewById(R.id.iv_thumbnail);
+        viewHolder.tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
+        viewHolder.blurView = view.findViewById(R.id.blur);
+        view.setTag(viewHolder);
         return view;
     }
 
@@ -77,34 +89,27 @@ public class HeadersAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         if (cursor != null) {
-            TextView tvAuthor = (TextView) view.findViewById(R.id.tv_header_author);
-            TextView tvDate = (TextView) view.findViewById(R.id.tv_header_date);
-            TextView tvName = (TextView) view.findViewById(R.id.tv_header_name);
-            TextView tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
-            final ImageView ivThumbnail = (ImageView) view.findViewById(R.id.iv_thumbnail);
-            final TextView tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
-            final View blurView = view.findViewById(R.id.blur);
-
+            final ViewHolder viewHolder = (ViewHolder) view.getTag();
             String thumbnailUrl = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL));
             int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
 
             final String name = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME));
 
-            tvThumbnail.setText(name);
+            viewHolder.tvThumbnail.setText(name);
 
-            tvThumbnail.post(new Runnable() {
+            viewHolder.tvThumbnail.post(new Runnable() {
                 @Override
                 public void run() {
                     int start = 0;
                     int end = 0;
-                    int count = tvThumbnail.getLineCount();
+                    int count = viewHolder.tvThumbnail.getLineCount();
 
                     if (count == 1) {
                         SpannableString spannableString = new SpannableString(name + " ");
                         spannableString.setSpan(new RoundedBackgroundSpan(), 0, name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        tvThumbnail.setText(spannableString);
+                        viewHolder.tvThumbnail.setText(spannableString);
                     } else {
-                        Layout layout = tvThumbnail.getLayout();
+                        Layout layout = viewHolder.tvThumbnail.getLayout();
                         SpannableStringBuilder spannableString = new SpannableStringBuilder();
                         for (int i = 0; i < count; i++) {
                             end = layout.getLineEnd(i);
@@ -122,7 +127,7 @@ public class HeadersAdapter extends CursorAdapter {
                             }
                             start = end;
                         }
-                        tvThumbnail.setText(spannableString);
+                        viewHolder.tvThumbnail.setText(spannableString);
                     }
                 }
             });
@@ -131,9 +136,18 @@ public class HeadersAdapter extends CursorAdapter {
                 thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
             }
 
-            ivThumbnail.setImageResource(0);
+            if (mThumbnailHeight == 0) {
+                viewHolder.blurView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mThumbnailHeight = viewHolder.blurView.getMeasuredHeight();
+                        mThumbnailWidht = viewHolder.blurView.getMeasuredWidth();
+                    }
+                });
+                return;
+            }
 
-            ImageLoader.getInstance().loadImage(thumbnailUrl, new ImageLoadingListener() {
+            ImageLoader.getInstance().loadImage(thumbnailUrl, new ImageSize(mThumbnailWidht, mThumbnailHeight), new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
 
@@ -146,14 +160,13 @@ public class HeadersAdapter extends CursorAdapter {
 
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    ivThumbnail.setImageBitmap(loadedImage);
-
-                    ivThumbnail.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                    viewHolder.ivThumbnail.setImageBitmap(loadedImage);
+                    viewHolder.ivThumbnail.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                         @Override
                         public boolean onPreDraw() {
-                            ivThumbnail.getViewTreeObserver().removeOnPreDrawListener(this);
-                            ivThumbnail.buildDrawingCache();
-                            new BlurAsyncTask(ivThumbnail.getDrawingCache(), blurView).execute();
+                            viewHolder.ivThumbnail.getViewTreeObserver().removeOnPreDrawListener(this);
+                            viewHolder.ivThumbnail.buildDrawingCache();
+                            new BlurAsyncTask(viewHolder.ivThumbnail.getDrawingCache(), viewHolder.blurView).execute();
                             return true;
                         }
                     });
@@ -167,19 +180,16 @@ public class HeadersAdapter extends CursorAdapter {
 
             long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
             mCalendar.setTimeInMillis(timestamp * 1000);
-            tvDate.setText(mDateFormat.format(mCalendar.getTime()));
-            tvName.setText(name);
-            tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
-            tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
+            viewHolder.tvDate.setText(mDateFormat.format(mCalendar.getTime()));
+            viewHolder.tvName.setText(name);
+            viewHolder.tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
+            viewHolder.tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
         }
     }
 
     private class BlurAsyncTask extends AsyncTask<Void, Void, Bitmap> {
         View mView;
         Bitmap mSource;
-        int mThumbnailWidht;
-        int mThumbnailHeight;
-
 
         public BlurAsyncTask(Bitmap source, View view) {
             mSource = source;
@@ -188,8 +198,6 @@ public class HeadersAdapter extends CursorAdapter {
 
         @Override
         protected void onPreExecute() {
-            mThumbnailHeight = mView.getMeasuredHeight();
-            mThumbnailWidht = mView.getMeasuredWidth();
             super.onPreExecute();
         }
 
@@ -248,5 +256,15 @@ public class HeadersAdapter extends CursorAdapter {
         private float measureText(Paint paint, CharSequence text, int start, int end) {
             return paint.measureText(text, start, end);
         }
+    }
+
+    private class ViewHolder {
+        TextView tvAuthor;
+        TextView tvDate;
+        TextView tvName;
+        TextView tvSpoiler;
+        ImageView ivThumbnail;
+        TextView tvThumbnail;
+        View blurView;
     }
 }

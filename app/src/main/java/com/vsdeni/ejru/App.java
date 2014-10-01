@@ -17,13 +17,13 @@ public class App extends Application {
 
         DisplayImageOptions defaultDisplayOptions = new DisplayImageOptions.Builder()
                 .resetViewBeforeLoading(true)
-                .cacheInMemory(false)
+                .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .build();
 
         // Create global configuration and initialize ImageLoader with this configuration
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-                .memoryCache(new LruMemoryCache(5 * 1024 * 1024))
+                .memoryCache(new LruMemoryCache(10 * 1024 * 1024))
                 .diskCacheFileCount(100)
                 .defaultDisplayImageOptions(defaultDisplayOptions)
                 .build();

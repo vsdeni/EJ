@@ -42,7 +42,6 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
         if (args != null) {
             mCategoryId = args.getInt("cat_id");
         }
-
         setListAdapter(new HeadersAdapter(getActivity(), null, true));
     }
 
