@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;

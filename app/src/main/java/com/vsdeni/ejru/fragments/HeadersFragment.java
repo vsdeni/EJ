@@ -49,14 +49,17 @@ public class HeadersFragment extends ListFragment implements LoaderManager.Loade
     public void onStart() {
         super.onStart();
         getListView().setOnItemClickListener(this);
+        getListView().setAnimationCacheEnabled(false);
+        getListView().setScrollingCacheEnabled(false);
+        getListView().setSmoothScrollbarEnabled(true);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (mCategoryId == 0){
-            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, null, null, HeadersModelColumns.TIMESTAMP +" DESC");
+        if (mCategoryId == 0) {
+            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, null, null, HeadersModelColumns.TIMESTAMP + " DESC");
         } else {
-            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, HeadersModelColumns.CATEGORY_ID + " = " + mCategoryId, null, HeadersModelColumns.TIMESTAMP +" DESC");
+            return new CursorLoader(getActivity(), HeadersModelColumns.URI, null, HeadersModelColumns.CATEGORY_ID + " = " + mCategoryId, null, HeadersModelColumns.TIMESTAMP + " DESC");
         }
     }
 

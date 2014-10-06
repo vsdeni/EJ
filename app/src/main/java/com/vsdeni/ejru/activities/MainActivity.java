@@ -28,9 +28,9 @@ import com.vsdeni.ejru.fragments.HeadersFragment;
 import com.vsdeni.ejru.model.Author;
 import com.vsdeni.ejru.model.Category;
 import com.vsdeni.ejru.model.Header;
-import com.vsdeni.ejru.network.HeadersRequest;
 import com.vsdeni.ejru.network.AuthorsRequest;
 import com.vsdeni.ejru.network.CategoriesRequest;
+import com.vsdeni.ejru.network.HeadersRequest;
 
 import java.util.ArrayList;
 
