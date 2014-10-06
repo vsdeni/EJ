@@ -4,11 +4,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -34,11 +36,16 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.ViewScaleType;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.TitleTextView;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -51,8 +58,8 @@ public class HeadersAdapter extends CursorAdapter {
     private SimpleDateFormat mDateFormat;
     private Calendar mCalendar;
     private Context mContext;
-    private int mThumbnailHeight;
-    private int mThumbnailWidht;
+    private int mThumbnailHeight = 300;
+    private int mThumbnailWidht = 1020;
 
     public HeadersAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
@@ -75,7 +82,6 @@ public class HeadersAdapter extends CursorAdapter {
         viewHolder.tvDate = (TextView) view.findViewById(R.id.tv_header_date);
         viewHolder.tvName = (TextView) view.findViewById(R.id.tv_header_name);
         viewHolder.tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
-        viewHolder.ivThumbnail = (ImageView) view.findViewById(R.id.iv_thumbnail);
         viewHolder.tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
         viewHolder.blurView = view.findViewById(R.id.blur);
         view.setTag(viewHolder);
@@ -92,8 +98,16 @@ public class HeadersAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         if (cursor != null) {
             final ViewHolder viewHolder = (ViewHolder) view.getTag();
-            String thumbnailUrl = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL));
+            String existingUrl = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.THUMBNAIL_URL));
+
             int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
+
+            final String thumbnailUrl;
+            if (TextUtils.isEmpty(existingUrl)) {
+                thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
+            } else {
+                thumbnailUrl = existingUrl;
+            }
 
             final String name = cursor.getString(cursor.getColumnIndex(HeadersModelColumns.NAME));
 
@@ -134,44 +148,36 @@ public class HeadersAdapter extends CursorAdapter {
                 }
             });
 
-            if (TextUtils.isEmpty(thumbnailUrl)) {
-                thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons160.jpg";
-            }
-
-            if (mThumbnailHeight == 0) {
-                viewHolder.blurView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mThumbnailHeight = viewHolder.blurView.getMeasuredHeight();
-                        mThumbnailWidht = viewHolder.blurView.getMeasuredWidth();
-                    }
-                });
-                return;
-            }
-
             viewHolder.blurView.setVisibility(View.GONE);
 
-            ImageLoader.getInstance().loadImage(thumbnailUrl, new ImageSize(mThumbnailWidht, mThumbnailHeight), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
+            File file = ImageLoader.getInstance().getDiskCache().get(thumbnailUrl);
+            if (file != null && file.exists()) {
+                Drawable d = Drawable.createFromPath(file.getPath());
+                viewHolder.blurView.setBackgroundDrawable(d);
+                viewHolder.blurView.setVisibility(View.VISIBLE);
+            } else {
+                ImageLoader.getInstance().loadImage(thumbnailUrl, new ImageSize(mThumbnailWidht, mThumbnailHeight), new ImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
 
-                }
+                    }
 
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 
-                }
+                    }
 
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    new BlurAsyncTask(loadedImage, viewHolder.blurView).execute();
-                }
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        new BlurAsyncTask(thumbnailUrl, loadedImage, viewHolder.blurView).execute();
+                    }
 
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
 
-                }
-            });
+                    }
+                });
+            }
 
             long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
             mCalendar.setTimeInMillis(timestamp * 1000);
@@ -185,10 +191,12 @@ public class HeadersAdapter extends CursorAdapter {
     private class BlurAsyncTask extends AsyncTask<Void, Void, Bitmap> {
         View mView;
         Bitmap mSource;
+        String mUrl;
 
-        public BlurAsyncTask(Bitmap source, View view) {
+        public BlurAsyncTask(String url, Bitmap source, View view) {
             mSource = source;
             mView = view;
+            mUrl = url;
         }
 
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -209,6 +217,12 @@ public class HeadersAdapter extends CursorAdapter {
             canvas.drawBitmap(bitmap, 0, 0, paint);
 
             overlay = fastblur(overlay, (int) radius);
+
+            try {
+                ImageLoader.getInstance().getDiskCache().save(mUrl, overlay);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             Log.i("blur", String.valueOf(System.currentTimeMillis() - startMs));
             return overlay;
@@ -482,7 +496,6 @@ public class HeadersAdapter extends CursorAdapter {
         TextView tvDate;
         TextView tvName;
         TextView tvSpoiler;
-        ImageView ivThumbnail;
         TextView tvThumbnail;
         View blurView;
     }
