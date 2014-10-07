@@ -24,7 +24,7 @@ public class BaseActivity extends FragmentActivity {
         super.onStop();
     }
 
-    protected SpiceManager getSpiceManager() {
+    public SpiceManager getSpiceManager() {
         return mSpiceManager;
     }
 }

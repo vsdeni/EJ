@@ -1,5 +1,6 @@
 package com.vsdeni.ejru.activities;
 
+import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -23,14 +24,11 @@ import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
 import com.vsdeni.ejru.data.AuthorsModelColumns;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
-import com.vsdeni.ejru.data.HeadersModelColumns;
 import com.vsdeni.ejru.fragments.HeadersFragment;
 import com.vsdeni.ejru.model.Author;
 import com.vsdeni.ejru.model.Category;
-import com.vsdeni.ejru.model.Header;
 import com.vsdeni.ejru.network.AuthorsRequest;
 import com.vsdeni.ejru.network.CategoriesRequest;
-import com.vsdeni.ejru.network.HeadersRequest;
 
 import java.util.ArrayList;
 
@@ -39,7 +37,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private CategoriesRequest mCategoriesRequest;
-    private HeadersRequest mHeadersRequest;
     private AuthorsRequest mAuthorsRequest;
 
     private ListView mDrawerList;
@@ -63,15 +60,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
-        mHeadersRequest = new HeadersRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_launcher, R.string.title, R.drawable.ic_launcher);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         if (savedInstanceState == null) {
             mHeadersFragment = new HeadersFragment();
@@ -90,7 +89,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onStart() {
         super.onStart();
-        getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
     }
 
     @Override
@@ -182,21 +180,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
     }
 
-    class HeadersRequestListener implements RequestListener<Header.List> {
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            Log.e(TAG, spiceException.getMessage());
-        }
-
-        @Override
-        public void onRequestSuccess(Header.List headers) {
-            Log.i(TAG, "Headers request success");
-            if (headers != null) {
-                new SaveHeadersAsyncTask().execute(mCategoryId, headers.getHeaders());
-            }
-        }
-    }
 
     private class SaveAuthorsAsyncTask extends AsyncTask<ArrayList<Author>, Void, Void> {
 
@@ -229,7 +212,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         protected Void doInBackground(ArrayList<Category>... params) {
             ArrayList<Category> data = params[0];
             if (data != null) {
-                data.add(0,new Category(0,getString(R.string.main_category)));
+                data.add(0, new Category(0, getString(R.string.main_category)));
                 ContentResolver resolver = getContentResolver();
                 resolver.delete(CategoriesModelColumns.URI, null, null);
                 ContentValues values = new ContentValues(2);
@@ -246,36 +229,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         @Override
         protected void onPostExecute(Void aVoid) {
             getContentResolver().notifyChange(CategoriesModelColumns.URI, null);
-        }
-    }
-
-    private class SaveHeadersAsyncTask extends AsyncTask<Object, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Object... params) {
-            ArrayList<Header> data = (ArrayList<Header>) params[1];
-            if (data != null) {
-                ContentResolver resolver = getContentResolver();
-                resolver.delete(HeadersModelColumns.URI, null, null);
-                ContentValues values = new ContentValues(4);
-                for (Header header : data) {
-                    values.clear();
-                    values.put(HeadersModelColumns.ID, header.getId());
-                    values.put(HeadersModelColumns.NAME, header.getName());
-                    values.put(HeadersModelColumns.AUTHOR_ID, header.getAuthorId());
-                    values.put(HeadersModelColumns.TIMESTAMP, header.getTimestamp());
-                    values.put(HeadersModelColumns.CATEGORY_ID, header.getCategoryId());
-                    values.put(HeadersModelColumns.SPOILER, header.getSpoiler());
-                    values.put(HeadersModelColumns.THUMBNAIL_URL, header.getThumbnailUrl());
-                    resolver.insert(HeadersModelColumns.URI, values);
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            getContentResolver().notifyChange(HeadersModelColumns.URI, null);
         }
     }
 }
