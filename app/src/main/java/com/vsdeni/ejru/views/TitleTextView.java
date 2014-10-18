@@ -1,4 +1,4 @@
-package com.vsdeni.ejru;
+package com.vsdeni.ejru.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -14,11 +14,6 @@ import android.widget.TextView;
  */
 public class TitleTextView extends TextView {
     Paint mPaint;
-
-    public float pixelsToSp(float px) {
-        float scaledDensity = getContext().getResources().getDisplayMetrics().scaledDensity;
-        return px / scaledDensity;
-    }
 
     public TitleTextView(Context context) {
         super(context);

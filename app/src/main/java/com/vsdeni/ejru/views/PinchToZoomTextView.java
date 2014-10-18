@@ -2,19 +2,18 @@ package com.vsdeni.ejru.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.TextView;
+
+import com.vsdeni.ejru.Utils;
 
 /**
  * http://stackoverflow.com/a/20303367/1735100
  */
 public class PinchToZoomTextView extends TextView {
-    final static float STEP = 200;
-    float mRatio = 1.0f;
+    final static float STEP = 100;
+    float mRatio;
     int mBaseDist;
     float mBaseRatio;
 
@@ -30,18 +29,24 @@ public class PinchToZoomTextView extends TextView {
         super(context, attrs, defStyle);
     }
 
+    @Override
+    public void setTextSize(float size) {
+        super.setTextSize(size);
+        mRatio = Utils.pixelsToSp(getTextSize(), getContext()) - 13;
+    }
+
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getPointerCount() == 2) {
             int action = event.getAction();
             int pureaction = action & MotionEvent.ACTION_MASK;
             if (pureaction == MotionEvent.ACTION_POINTER_DOWN) {
-                mBaseDist = getDistance(event);
                 mBaseRatio = mRatio;
+                mBaseDist = getDistance(event);
             } else {
                 float delta = (getDistance(event) - mBaseDist) / STEP;
                 float multi = (float) Math.pow(2, delta);
                 mRatio = Math.min(1024.0f, Math.max(0.1f, mBaseRatio * multi));
-                setTextSize(mRatio + 13);
+                super.setTextSize(mRatio + 13);
             }
         }
         return true;

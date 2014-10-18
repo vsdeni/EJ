@@ -23,10 +23,12 @@ import android.widget.TextView;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.Utils;
 import com.vsdeni.ejru.activities.BaseActivity;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;
 import com.vsdeni.ejru.network.ArticleRequest;
+import com.vsdeni.ejru.views.PinchToZoomTextView;
 
 import java.util.ArrayList;
 
@@ -39,16 +41,19 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private LinearLayout mProgressHolder;
     private TextView mProgressTitle;
     private ProgressBar mProgressbar;
+
+    private PinchToZoomTextView mBody;
+    private ImageView mImage;
+
     private int mId;
     private String mTitle;
     private int mAuthorId;
     private int mCategoryId;
     private String mAuthorName;
 
-    private ArticleRequest mArticleRequest;
+    private float mStartingFontSize;
 
-    private TextView mBody;
-    private ImageView mImage;
+    private ArticleRequest mArticleRequest;
 
     public static ArticleFragment newInstance(int id, String title, int authorId, int categoryId, String authorName) {
         ArticleFragment fr = new ArticleFragment();
@@ -63,10 +68,27 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
+    public void onPause() {
+        if (mStartingFontSize != mBody.getTextSize()) {
+            Utils.Prefs.saveInt(Utils.Prefs.FONT_SIZE, Utils.pixelsToSp(mBody.getTextSize(), getActivity()), getActivity());
+        }
+        super.onPause();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_article, container, false);
-        mBody = (TextView) view.findViewById(R.id.tv_article_body);
+        mBody = (PinchToZoomTextView) view.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
+
+        int customTextSize = Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity());
+
+        if (customTextSize != 0) {
+            mBody.setTextSize(customTextSize);
+        }
+
+        mStartingFontSize = mBody.getTextSize();
+
         mImage = (ImageView) view.findViewById(R.id.iv_article_image);
         mProgressHolder = (LinearLayout) view.findViewById(R.id.progress_holder);
         mProgressTitle = (TextView) view.findViewById(R.id.progress_title);
@@ -108,7 +130,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 mBody.setText(Html.fromHtml(article.getBody()));
                 // ImageLoader.getInstance().displayImage(article.getImageUrl(), mImage);
             } else {
-            setProgressVisible(true);
+                setProgressVisible(true);
                 ((BaseActivity) getActivity()).getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
             }
         }
