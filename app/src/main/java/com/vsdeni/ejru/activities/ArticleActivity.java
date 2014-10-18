@@ -23,25 +23,24 @@ import java.util.ArrayList;
 public class ArticleActivity extends BaseActivity {
     private final static String TAG = ArticleActivity.class.getSimpleName();
 
-    private boolean mArticleAlreadyInCache;
-
-    private ArticleRequest mArticleRequest;
-    private int mArticleId;
-    private int mCategoryId;
-    private int mAuthorId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        int articleId;
+        String articleTitle;
+        int authorId;
+        int categoryId;
+        String authorName;
+
         Bundle args = getIntent().getExtras();
         if (args != null) {
-            mArticleId = args.getInt("article_id");
-            mCategoryId = args.getInt("category_id");
-            mAuthorId = args.getInt("author_id");
-        }
-
-        if (mArticleId == 0) {
+            articleId = args.getInt("article_id");
+            articleTitle = args.getString("article_title");
+            authorId = args.getInt("author_id");
+            categoryId = args.getInt("category_id");
+            authorName = args.getString("author_name");
+        } else {
             throw new IllegalArgumentException("Article id required!");
         }
 
@@ -51,25 +50,10 @@ public class ArticleActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, ArticleFragment.newInstance(mArticleId))
+                    .add(android.R.id.content, ArticleFragment.newInstance(articleId, articleTitle, authorId, categoryId, authorName))
                     .commit();
         }
 
-        Cursor cursor = getContentResolver().query(ArticlesModelColumns.URI, new String[]{ArticlesModelColumns._ID}, ArticlesModelColumns.ID + "=" + mArticleId, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            mArticleAlreadyInCache = true;
-        }
-
-        mArticleRequest = new ArticleRequest(mArticleId);
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!mArticleAlreadyInCache) {
-            getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
-        }
     }
 
     @Override
@@ -82,73 +66,4 @@ public class ArticleActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class ArticleRequestListener implements RequestListener<Article.List> {
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            Log.e(TAG, spiceException.getMessage());
-        }
-
-        @Override
-        public void onRequestSuccess(Article.List articles) {
-            Log.i(TAG, "Article request success");
-            if (articles != null) {
-                new SaveArticleAsyncTask().execute(articles.getArticles());
-            }
-        }
-    }
-
-    private class SaveArticleAsyncTask extends AsyncTask<ArrayList<Article>, Void, Void> {
-
-        private String getBodyWithoutRedundantTags(String text) {
-            int tagOpenPosition = text.indexOf("<img src=");
-            while (tagOpenPosition >= 0) {
-                int tagEndPosition = text.indexOf(">", tagOpenPosition);
-                if (tagEndPosition > 0) {
-                    if (tagOpenPosition >= 3) {
-                        String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
-                        if (tagBefore.equals("<p>")) {
-                            tagOpenPosition = tagOpenPosition - 3;
-                        }
-                    }
-                    String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
-                    text = text.replace(tagContent, "");
-                }
-                tagOpenPosition = text.indexOf("<img src=");
-            }
-
-            tagOpenPosition = text.indexOf("<br");
-            while (tagOpenPosition == 0) {
-                text = text.substring(6);
-                tagOpenPosition = text.indexOf("<br");
-            }
-
-            return text;
-        }
-
-        @Override
-        protected Void doInBackground(ArrayList<Article>... params) {
-            ArrayList<Article> data = params[0];
-            if (data != null) {
-                ContentResolver resolver = getContentResolver();
-                resolver.delete(ArticlesModelColumns.URI, ArticlesModelColumns.ID + " = " + mArticleId, null);
-                ContentValues values = new ContentValues(5);
-                for (Article article : data) {
-                    values.clear();
-                    values.put(ArticlesModelColumns.ID, mArticleId);
-                    values.put(ArticlesModelColumns.BODY, getBodyWithoutRedundantTags(article.getBody()));
-                    values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
-                    values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
-                    values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);
-                    resolver.insert(ArticlesModelColumns.URI, values);
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            getContentResolver().notifyChange(ArticlesModelColumns.URI, null);
-        }
-    }
 }

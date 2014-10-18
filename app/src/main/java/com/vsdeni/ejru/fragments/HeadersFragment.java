@@ -105,6 +105,8 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         intent.putExtra("article_id", header.getId());
         intent.putExtra("category_id", header.getCategoryId());
         intent.putExtra("author_id", header.getAuthorId());
+        intent.putExtra("article_title", header.getName());
+        intent.putExtra("author_name", cursor.getString(cursor.getColumnIndex("author_name")));
         startActivity(intent);
     }
 

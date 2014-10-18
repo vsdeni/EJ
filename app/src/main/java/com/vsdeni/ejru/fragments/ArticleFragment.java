@@ -1,6 +1,9 @@
 package com.vsdeni.ejru.fragments;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -8,29 +11,53 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.activities.BaseActivity;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;
+import com.vsdeni.ejru.network.ArticleRequest;
+
+import java.util.ArrayList;
 
 /**
  * Created by Admin on 05.09.2014.
  */
 public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = ArticleFragment.class.getSimpleName();
+
+    private LinearLayout mProgressHolder;
+    private TextView mProgressTitle;
+    private ProgressBar mProgressbar;
     private int mId;
+    private String mTitle;
+    private int mAuthorId;
+    private int mCategoryId;
+    private String mAuthorName;
+
+    private ArticleRequest mArticleRequest;
 
     private TextView mBody;
     private ImageView mImage;
 
-    public static ArticleFragment newInstance(int id) {
+    public static ArticleFragment newInstance(int id, String title, int authorId, int categoryId, String authorName) {
         ArticleFragment fr = new ArticleFragment();
         Bundle args = new Bundle(1);
         args.putInt("id", id);
+        args.putString("title", title);
+        args.putInt("author_id", authorId);
+        args.putInt("category", categoryId);
+        args.putString("author_name", authorName);
         fr.setArguments(args);
         return fr;
     }
@@ -41,6 +68,11 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         mBody = (TextView) view.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
         mImage = (ImageView) view.findViewById(R.id.iv_article_image);
+        mProgressHolder = (LinearLayout) view.findViewById(R.id.progress_holder);
+        mProgressTitle = (TextView) view.findViewById(R.id.progress_title);
+        mProgressbar = (ProgressBar) view.findViewById(R.id.progressbar);
+
+        mProgressTitle.setText(mTitle + "\n" + mAuthorName);
         return view;
     }
 
@@ -50,10 +82,16 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         Bundle args = getArguments();
         if (args != null) {
             mId = args.getInt("id");
+            mTitle = args.getString("title");
+            mAuthorId = args.getInt("author_id");
+            mCategoryId = args.getInt("category");
+            mAuthorName = args.getString("author_name");
         } else {
             throw new IllegalArgumentException("Article id required!");
         }
         getActivity().getSupportLoaderManager().initLoader(3, null, this);
+
+        mArticleRequest = new ArticleRequest(mId);
     }
 
     @Override
@@ -65,10 +103,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
             if (data != null && data.moveToFirst()) {
+                setProgressVisible(false);
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
-
-               // ImageLoader.getInstance().displayImage(article.getImageUrl(), mImage);
+                // ImageLoader.getInstance().displayImage(article.getImageUrl(), mImage);
+            } else {
+            setProgressVisible(true);
+                ((BaseActivity) getActivity()).getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
             }
         }
     }
@@ -76,5 +117,83 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    private void setProgressVisible(boolean visible) {
+        if (visible) {
+            mProgressHolder.setVisibility(View.VISIBLE);
+        } else {
+            mProgressHolder.setVisibility(View.GONE);
+        }
+    }
+
+    class ArticleRequestListener implements RequestListener<Article.List> {
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            Log.e(TAG, spiceException.getMessage());
+            setProgressVisible(false);
+        }
+
+        @Override
+        public void onRequestSuccess(Article.List articles) {
+            Log.i(TAG, "Article request success");
+            if (articles != null) {
+                new SaveArticleAsyncTask().execute(articles.getArticles());
+            }
+        }
+    }
+
+    private class SaveArticleAsyncTask extends AsyncTask<ArrayList<Article>, Void, Void> {
+
+        private String getBodyWithoutRedundantTags(String text) {
+            int tagOpenPosition = text.indexOf("<img src=");
+            while (tagOpenPosition >= 0) {
+                int tagEndPosition = text.indexOf(">", tagOpenPosition);
+                if (tagEndPosition > 0) {
+                    if (tagOpenPosition >= 3) {
+                        String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
+                        if (tagBefore.equals("<p>")) {
+                            tagOpenPosition = tagOpenPosition - 3;
+                        }
+                    }
+                    String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
+                    text = text.replace(tagContent, "");
+                }
+                tagOpenPosition = text.indexOf("<img src=");
+            }
+
+            tagOpenPosition = text.indexOf("<br");
+            while (tagOpenPosition == 0) {
+                text = text.substring(6);
+                tagOpenPosition = text.indexOf("<br");
+            }
+
+            return text;
+        }
+
+        @Override
+        protected Void doInBackground(ArrayList<Article>... params) {
+            ArrayList<Article> data = params[0];
+            if (data != null) {
+                ContentResolver resolver = getActivity().getContentResolver();
+                resolver.delete(ArticlesModelColumns.URI, ArticlesModelColumns.ID + " = " + mId, null);
+                ContentValues values = new ContentValues(5);
+                for (Article article : data) {
+                    values.clear();
+                    values.put(ArticlesModelColumns.ID, mId);
+                    values.put(ArticlesModelColumns.BODY, getBodyWithoutRedundantTags(article.getBody()));
+                    values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
+                    values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
+                    values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);
+                    resolver.insert(ArticlesModelColumns.URI, values);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            getActivity().getContentResolver().notifyChange(ArticlesModelColumns.URI, null);
+        }
     }
 }
