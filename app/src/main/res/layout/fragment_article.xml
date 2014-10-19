@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -12,49 +13,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/iv_article_image"
-                android:layout_alignParentTop="true"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            <ProgressBar
+                android:visibility="gone"
+                android:id="@+id/progressbar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:layout_centerHorizontal="true"/>
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/progress_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progressbar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:shadowColor="#11000000"
+                android:shadowDx="5"
+                android:shadowDy="5"
+                android:shadowRadius="5"
+                android:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
+                android:textColor="#33000000"
+                android:textSize="20sp"/>
+
 
             <com.vsdeni.ejru.views.PinchToZoomTextView
-                android:layout_below="@id/iv_article_image"
-                android:layout_margin="5dp"
                 android:id="@+id/tv_article_body"
-                android:textSize="18sp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_below="@id/progress_title"
+                android:layout_margin="5dp"
+                android:textSize="18sp"/>
         </RelativeLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/progress_holder"
-        android:layout_margin="10dp"
-        android:layout_width="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:layout_height="wrap_content">
-
-        <ProgressBar
-            android:id="@+id/progressbar"
-            android:layout_width="wrap_content"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/progress_title"
-            android:layout_marginTop="5dp"
-            android:shadowDx="5"
-            android:shadowDy="5"
-            android:shadowRadius="5"
-            android:shadowColor="#11000000"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
-            android:textColor="#33000000"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
 </RelativeLayout>

@@ -15,9 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -38,10 +42,11 @@ import java.util.ArrayList;
 public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = ArticleFragment.class.getSimpleName();
 
-    private LinearLayout mProgressHolder;
+    private ScrollView mScrollView;
     private TextView mProgressTitle;
     private ProgressBar mProgressbar;
 
+    private View mRootView;
     private PinchToZoomTextView mBody;
     private ImageView mImage;
 
@@ -77,8 +82,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_article, container, false);
-        mBody = (PinchToZoomTextView) view.findViewById(R.id.tv_article_body);
+        mRootView = inflater.inflate(R.layout.fragment_article, container, false);
+        mBody = (PinchToZoomTextView) mRootView.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
 
         int customTextSize = Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity());
@@ -89,13 +94,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
         mStartingFontSize = mBody.getTextSize();
 
-        mImage = (ImageView) view.findViewById(R.id.iv_article_image);
-        mProgressHolder = (LinearLayout) view.findViewById(R.id.progress_holder);
-        mProgressTitle = (TextView) view.findViewById(R.id.progress_title);
-        mProgressbar = (ProgressBar) view.findViewById(R.id.progressbar);
+        mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
+        mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
+        mProgressbar = (ProgressBar) mRootView.findViewById(R.id.progressbar);
 
         mProgressTitle.setText(mTitle + "\n" + mAuthorName);
-        return view;
+
+        return mRootView;
     }
 
     @Override
@@ -122,15 +127,45 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
             if (data != null && data.moveToFirst()) {
                 setProgressVisible(false);
+                final int topMargin = 0;
+                final int curMargin = ((RelativeLayout.LayoutParams) (mScrollView.getLayoutParams())).topMargin;
+                final int diff = curMargin - topMargin;
+                mProgressTitle.setVisibility(View.VISIBLE);
+                if (diff > 0) {
+                    Animation a = new Animation() {
+                        @Override
+                        protected void applyTransformation(float interpolatedTime, Transformation t) {
+                            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
+                            params.topMargin = (int) (curMargin - (diff * interpolatedTime));
+                            mScrollView.setLayoutParams(params);
+                        }
+                    };
+                    a.setDuration(400);
+                    mScrollView.startAnimation(a);
+                }
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
-                // ImageLoader.getInstance().displayImage(article.getImageUrl(), mImage);
             } else {
-                setProgressVisible(true);
+                mRootView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setProgressVisible(true);
+                        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
+                        params.topMargin = ((Utils.getScreenHeight(getActivity()) -Utils.getActionbarHeight(getActivity()))/ 2) - (int) Utils.convertDpToPixel(75, getActivity());
+                        mScrollView.setLayoutParams(params);
+                        mProgressTitle.setVisibility(View.VISIBLE);
+                    }
+                });
                 ((BaseActivity) getActivity()).getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
             }
         }
@@ -143,9 +178,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void setProgressVisible(boolean visible) {
         if (visible) {
-            mProgressHolder.setVisibility(View.VISIBLE);
+            mProgressbar.setVisibility(View.VISIBLE);
         } else {
-            mProgressHolder.setVisibility(View.GONE);
+            mProgressbar.setVisibility(View.GONE);
         }
     }
 
