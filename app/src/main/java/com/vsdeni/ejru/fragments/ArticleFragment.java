@@ -253,4 +253,24 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             getActivity().getContentResolver().notifyChange(ArticlesModelColumns.URI, null);
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntArray("scroll_position",
+                new int[]{ mScrollView.getScrollX(), mScrollView.getScrollY()});
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null){
+        final int scroll[] = savedInstanceState.getIntArray("scroll_position");
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.scrollTo(0,scroll[1]);
+            }
+        });}
+    }
 }
