@@ -161,7 +161,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     public void run() {
                         setProgressVisible(true);
                         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
-                        params.topMargin = ((Utils.getScreenHeight(getActivity()) -Utils.getActionbarHeight(getActivity()))/ 2) - (int) Utils.convertDpToPixel(75, getActivity());
+                        params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(75, getActivity());
                         mScrollView.setLayoutParams(params);
                         mProgressTitle.setVisibility(View.VISIBLE);
                     }
@@ -257,20 +257,24 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putIntArray("scroll_position",
-                new int[]{ mScrollView.getScrollX(), mScrollView.getScrollY()});
+        int scrolled = mScrollView.getScrollY();
+        if (scrolled > 0) {
+            outState.putFloat("scroll_position", (float) scrolled / ((float) mScrollView.getHeight() / 100f));
+        }
     }
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null){
-        final int scroll[] = savedInstanceState.getIntArray("scroll_position");
-        mScrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                mScrollView.scrollTo(0,scroll[1]);
-            }
-        });}
+        if (savedInstanceState != null) {
+            final float scrolled = savedInstanceState.getFloat("scroll_position");
+            mScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int scrollTo = (int) (((float) mScrollView.getHeight() / 100f) * scrolled);
+                    mScrollView.scrollTo(0, scrollTo);
+                }
+            });
+        }
     }
 }
