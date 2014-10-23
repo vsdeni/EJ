@@ -70,7 +70,6 @@ public class HeadersAdapter extends CursorAdapter {
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.tvAuthor = (TextView) view.findViewById(R.id.tv_header_author);
         viewHolder.tvDate = (TextView) view.findViewById(R.id.tv_header_date);
-        viewHolder.tvName = (TextView) view.findViewById(R.id.tv_header_name);
         viewHolder.tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
         viewHolder.tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
         viewHolder.blurView = view.findViewById(R.id.blur);
@@ -172,7 +171,6 @@ public class HeadersAdapter extends CursorAdapter {
             long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
             mCalendar.setTimeInMillis(timestamp * 1000);
             viewHolder.tvDate.setText(mDateFormat.format(mCalendar.getTime()));
-            viewHolder.tvName.setText(name);
             viewHolder.tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
             viewHolder.tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
         }
@@ -484,7 +482,6 @@ public class HeadersAdapter extends CursorAdapter {
     private class ViewHolder {
         TextView tvAuthor;
         TextView tvDate;
-        TextView tvName;
         TextView tvSpoiler;
         TextView tvThumbnail;
         View blurView;
