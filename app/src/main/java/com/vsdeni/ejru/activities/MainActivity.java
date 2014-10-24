@@ -140,6 +140,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
         mHeadersFragment.setCategoryId(mCategoryId);
         setTitle(mCategoryName);
+        mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawers();
     }
 
