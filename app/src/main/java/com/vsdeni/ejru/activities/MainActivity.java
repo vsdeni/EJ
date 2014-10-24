@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerAdapter mAdapter;
+    private DrawerAdapter mDrawerAdapter;
 
     private int mCategoryId;
     private String mCategoryName;
@@ -55,15 +55,15 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         setContentView(R.layout.activity_main);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mAdapter = new DrawerAdapter(this, null, true);
-        mDrawerList.setAdapter(mAdapter);
+        mDrawerAdapter = new DrawerAdapter(this, null, true);
+        mDrawerList.setAdapter(mDrawerAdapter);
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_launcher, R.string.title, R.drawable.ic_launcher);
+                R.drawable.ic_launcher, R.string.app_name, R.drawable.ic_launcher);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         ActionBar actionBar = getActionBar();
@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        mDrawerAdapter.swapCursor(data);
         if (data == null || data.getCount() == 0) {
             getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
             getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
@@ -135,7 +135,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void setPage(int position) {
-        Cursor cursor = (Cursor) mAdapter.getItem(position);
+        Cursor cursor = (Cursor) mDrawerAdapter.getItem(position);
         mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
         mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
         mHeadersFragment.setCategoryId(mCategoryId);
