@@ -74,7 +74,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         mListView.setAdapter(mAdapter);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandGray, R.color.brandAlmostWhite);
+        mSwipeRefreshLayout.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
         return view;
     }
 
