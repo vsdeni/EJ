@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -102,9 +103,10 @@ public class HeadersAdapter extends CursorAdapter {
 
             viewHolder.tvThumbnail.setText(name);
 
-            viewHolder.tvThumbnail.post(new Runnable() {
+            final ViewTreeObserver obs = viewHolder.tvThumbnail.getViewTreeObserver();
+            obs.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
-                public void run() {
+                public boolean onPreDraw() {
                     int start = 0;
                     int end = 0;
                     int count = viewHolder.tvThumbnail.getLineCount();
@@ -134,6 +136,16 @@ public class HeadersAdapter extends CursorAdapter {
                         }
                         viewHolder.tvThumbnail.setText(spannableString);
                     }
+
+                    viewHolder.tvThumbnail.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+            });
+
+            viewHolder.tvThumbnail.post(new Runnable() {
+                @Override
+                public void run() {
+
                 }
             });
 
