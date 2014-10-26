@@ -89,6 +89,10 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data == null || data.getCount()  == 0){
+            mSwipeRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
         mAdapter.swapCursor(data);
     }
 

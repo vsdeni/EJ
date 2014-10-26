@@ -161,7 +161,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     public void run() {
                         setProgressVisible(true);
                         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
-                        params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(75, getActivity());
+                        params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(100, getActivity());
                         mScrollView.setLayoutParams(params);
                         mProgressTitle.setVisibility(View.VISIBLE);
                     }

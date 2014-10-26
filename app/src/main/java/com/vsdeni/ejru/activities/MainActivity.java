@@ -122,7 +122,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mDrawerAdapter.swapCursor(data);
         if (data == null || data.getCount() == 0) {
-            getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
             getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
         } else {
             setPage(0);
@@ -158,6 +157,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestSuccess(Category.List categories) {
+            getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
             Log.i(TAG, "Categories request success");
             if (categories != null) {
                 new SaveCategoriesAsyncTask().execute(categories.getCategories());
