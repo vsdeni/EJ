@@ -6,4 +6,5 @@
     <color name="brandDarkBeige">#b5a78d</color>
     <color name="brandBeige">#ddd4be</color>
     <color name="brandDarkGray">#3f3e40</color>
+    <color name="veryLightGray">#22000000</color>
 </resources>

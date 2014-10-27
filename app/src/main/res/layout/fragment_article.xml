@@ -18,7 +18,6 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:visibility="visible"
                     android:id="@+id/progress_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -27,12 +26,12 @@
                     android:gravity="center"
                     android:shadowColor="#11000000"
                     android:shadowDx="5"
+                    android:textStyle="bold"
                     android:shadowDy="5"
                     android:shadowRadius="5"
                     android:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
-                    android:textColor="#33000000"
+                    android:textColor="@color/veryLightGray"
                     android:textSize="20sp"/>
-
 
                 <com.vsdeni.ejru.views.PinchToZoomTextView
                     android:id="@+id/tv_article_body"

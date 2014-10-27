@@ -1,5 +1,7 @@
 package com.vsdeni.ejru.fragments;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -19,8 +21,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -97,6 +97,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
         mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
 
+        mProgressTitle.setVisibility(View.GONE);
+
         mRootView.setOnRefreshListener(this);
         mRootView.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
         mRootView.setEnabled(false);
@@ -135,6 +137,33 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
+    private void moveArticleToTop(final float curMargin, final float diff){
+        Animation a = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
+                params.topMargin = (int) (curMargin - (diff * interpolatedTime));
+                mScrollView.setLayoutParams(params);
+            }
+        };
+        a.setDuration(400);
+        mScrollView.startAnimation(a);
+
+        Integer colorFrom = getResources().getColor(R.color.veryLightGray);
+        Integer colorTo = getResources().getColor(android.R.color.black);
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                mProgressTitle.setTextColor((Integer)animator.getAnimatedValue());
+            }
+
+        });
+        colorAnimation.setDuration(400);
+        colorAnimation.start();
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
@@ -145,16 +174,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 final int diff = curMargin - topMargin;
                 mProgressTitle.setVisibility(View.VISIBLE);
                 if (diff > 0) {
-                    Animation a = new Animation() {
-                        @Override
-                        protected void applyTransformation(float interpolatedTime, Transformation t) {
-                            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
-                            params.topMargin = (int) (curMargin - (diff * interpolatedTime));
-                            mScrollView.setLayoutParams(params);
-                        }
-                    };
-                    a.setDuration(400);
-                    mScrollView.startAnimation(a);
+                    moveArticleToTop(curMargin,diff);
+                } else {
+                    mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
                 }
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
