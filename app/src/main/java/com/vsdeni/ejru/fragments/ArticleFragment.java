@@ -99,6 +99,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
         mRootView.setOnRefreshListener(this);
         mRootView.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
+        mRootView.setEnabled(false);
 
         mProgressTitle.setText(mTitle + "\n" + mAuthorName);
 
