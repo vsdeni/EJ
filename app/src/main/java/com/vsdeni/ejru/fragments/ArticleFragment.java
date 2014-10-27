@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -137,7 +138,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    private void moveArticleToTop(final float curMargin, final float diff){
+    private void moveArticleToTop(final float curMargin, final float diff) {
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
@@ -156,7 +157,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
-                mProgressTitle.setTextColor((Integer)animator.getAnimatedValue());
+                mProgressTitle.setTextColor((Integer) animator.getAnimatedValue());
             }
 
         });
@@ -174,7 +175,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 final int diff = curMargin - topMargin;
                 mProgressTitle.setVisibility(View.VISIBLE);
                 if (diff > 0) {
-                    moveArticleToTop(curMargin,diff);
+                    moveArticleToTop(curMargin, diff);
                 } else {
                     mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
                 }
@@ -210,6 +211,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             Log.e(TAG, spiceException.getMessage());
+            if (isAdded()) {
+                Toast.makeText(getActivity(), getActivity().getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
+            }
             mRootView.setRefreshing(false);
         }
 

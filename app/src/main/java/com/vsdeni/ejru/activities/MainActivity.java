@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -105,7 +106,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         startActivity(intent);
     }
 
-    private void refresh(){
+    private void refresh() {
         mHeadersFragment.onRefresh();
     }
 
@@ -172,6 +173,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }
 
@@ -189,6 +191,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }
 
