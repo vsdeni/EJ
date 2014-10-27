@@ -116,6 +116,9 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onRefresh() {
+        if (!mSwipeRefreshLayout.isRefreshing()){
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
         ((BaseActivity) getActivity()).getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
     }
 
