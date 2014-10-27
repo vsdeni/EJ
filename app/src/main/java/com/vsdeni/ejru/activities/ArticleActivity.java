@@ -1,5 +1,6 @@
 package com.vsdeni.ejru.activities;
 
+import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.fragments.ArticleFragment;
 import com.vsdeni.ejru.model.Article;
@@ -44,8 +46,14 @@ public class ArticleActivity extends BaseActivity {
             throw new IllegalArgumentException("Article id required!");
         }
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        ActionBar actionBar = getActionBar();
+
+        if (actionBar != null){
+            actionBar.setTitle("");
+            actionBar.setIcon(R.drawable.ic_home);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
