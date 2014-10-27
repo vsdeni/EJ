@@ -1,6 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
+        <item name="asb_switchStyle">@style/Widget.Holo.CompoundButton.Switch</item>
+        <item name="asb_switchPreferenceStyle">@style/Preference.SwitchPreference</item>
         <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 

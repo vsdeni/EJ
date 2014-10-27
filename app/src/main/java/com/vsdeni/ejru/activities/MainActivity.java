@@ -3,6 +3,7 @@ package com.vsdeni.ejru.activities;
 import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.ListView;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.SettingsActivity;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
 import com.vsdeni.ejru.data.AuthorsModelColumns;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
@@ -98,6 +100,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         return true;
     }
 
+    private void openSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -105,6 +112,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            openSettings();
             return true;
         }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
@@ -142,7 +150,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerLayout.closeDrawers();
 
         ActionBar actionBar = getActionBar();
-        if (position == 0){
+        if (position == 0) {
             actionBar.setIcon(R.drawable.ic_home);
             setTitle("");
         } else {
