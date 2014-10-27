@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -39,14 +40,13 @@ import java.util.ArrayList;
 /**
  * Created by Admin on 05.09.2014.
  */
-public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = ArticleFragment.class.getSimpleName();
 
     private ScrollView mScrollView;
     private TextView mProgressTitle;
-    private ProgressBar mProgressbar;
 
-    private View mRootView;
+    private SwipeRefreshLayout mRootView;
     private PinchToZoomTextView mBody;
     private ImageView mImage;
 
@@ -82,7 +82,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_article, container, false);
+        mRootView = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_article, container, false);
         mBody = (PinchToZoomTextView) mRootView.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -96,7 +96,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
         mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
         mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
-        mProgressbar = (ProgressBar) mRootView.findViewById(R.id.progressbar);
+
+        mRootView.setOnRefreshListener(this);
+        mRootView.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
 
         mProgressTitle.setText(mTitle + "\n" + mAuthorName);
 
@@ -136,7 +138,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
             if (data != null && data.moveToFirst()) {
-                setProgressVisible(false);
+                mRootView.setRefreshing(false);
                 final int topMargin = 0;
                 final int curMargin = ((RelativeLayout.LayoutParams) (mScrollView.getLayoutParams())).topMargin;
                 final int diff = curMargin - topMargin;
@@ -159,7 +161,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 mRootView.post(new Runnable() {
                     @Override
                     public void run() {
-                        setProgressVisible(true);
+                        mRootView.setRefreshing(true);
                         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
                         params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(100, getActivity());
                         mScrollView.setLayoutParams(params);
@@ -176,19 +178,16 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    private void setProgressVisible(boolean visible) {
-        if (visible) {
-            mProgressbar.setVisibility(View.VISIBLE);
-        } else {
-            mProgressbar.setVisibility(View.GONE);
-        }
+    @Override
+    public void onRefresh() {
+        mRootView.setRefreshing(false);
     }
 
     class ArticleRequestListener implements RequestListener<Article.List> {
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             Log.e(TAG, spiceException.getMessage());
-            setProgressVisible(false);
+            mRootView.setRefreshing(false);
         }
 
         @Override
