@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -41,6 +42,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
     private CursorAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private HeadersRequest mHeadersRequest;
+    private boolean mRequestRunning;
 
     public static HeadersFragment newInstance(int categoryId) {
         HeadersFragment fr = new HeadersFragment();
@@ -89,7 +91,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data == null || data.getCount()  == 0){
+        if (data == null || data.getCount() == 0) {
             mSwipeRefreshLayout.setRefreshing(true);
             onRefresh();
         }
@@ -116,10 +118,14 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onRefresh() {
-        if (!mSwipeRefreshLayout.isRefreshing()){
+        if (!mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(true);
         }
-        ((BaseActivity) getActivity()).getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
+
+        if (!mRequestRunning) {
+            mRequestRunning = true;
+            ((BaseActivity) getActivity()).getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
+        }
     }
 
     class HeadersRequestListener implements RequestListener<Header.List> {
@@ -127,12 +133,17 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             Log.e(TAG, spiceException.getMessage());
-            mSwipeRefreshLayout.setRefreshing(false);
+            if (isAdded()) {
+                Toast.makeText(getActivity(), getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
+                mSwipeRefreshLayout.setRefreshing(false);
+                mRequestRunning = false;
+            }
         }
 
         @Override
         public void onRequestSuccess(Header.List headers) {
             Log.i(TAG, "Headers request success");
+            mRequestRunning = false;
             if (headers != null) {
                 new SaveHeadersAsyncTask().execute(mCategoryId, headers.getHeaders());
             }
