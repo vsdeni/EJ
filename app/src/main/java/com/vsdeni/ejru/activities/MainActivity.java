@@ -137,6 +137,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mDrawerAdapter.swapCursor(data);
         if (data == null || data.getCount() == 0) {
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(true);
             getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
         } else {
             setPage(0);
@@ -175,6 +176,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(false);
             Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }
@@ -193,6 +195,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(false);
             Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }

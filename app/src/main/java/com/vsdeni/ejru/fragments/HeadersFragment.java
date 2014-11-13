@@ -41,7 +41,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
     private int mCategoryId;
     private ListView mListView;
     private CursorAdapter mAdapter;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    public SwipeRefreshLayout mSwipeRefreshLayout;
     private HeadersRequest mHeadersRequest;
     private boolean mRequestRunning;
 
