@@ -1,6 +1,8 @@
 package com.vsdeni.ejru.views;
 
 import android.content.Context;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,30 +37,35 @@ public class PinchToZoomTextView extends TextView {
         mRatio = Utils.pixelsToSp(getTextSize(), getContext()) - 13;
     }
 
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getPointerCount() == 2) {
-            int action = event.getAction();
-            int pureaction = action & MotionEvent.ACTION_MASK;
-            if (pureaction == MotionEvent.ACTION_POINTER_DOWN) {
-                mBaseRatio = mRatio;
-                mBaseDist = getDistance(event);
-            } else {
-                float delta = (getDistance(event) - mBaseDist) / STEP;
-                float multi = (float) Math.pow(2, delta);
-                mRatio = Math.min(1024.0f, Math.max(0.1f, mBaseRatio * multi));
-                super.setTextSize(mRatio + 13);
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        setMovementMethod(LinkMovementMethod.getInstance());
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getPointerCount() == 2) {
+                    int action = event.getAction();
+                    int pureaction = action & MotionEvent.ACTION_MASK;
+                    if (pureaction == MotionEvent.ACTION_POINTER_DOWN) {
+                        mBaseRatio = mRatio;
+                        mBaseDist = getDistance(event);
+                    } else {
+                        float delta = (getDistance(event) - mBaseDist) / STEP;
+                        float multi = (float) Math.pow(2, delta);
+                        mRatio = Math.min(1024.0f, Math.max(0.1f, mBaseRatio * multi));
+                        PinchToZoomTextView.super.setTextSize(mRatio + 13);
+                    }
+                    return true;
+                }
+                return false;
             }
-        }
-        return true;
+        });
     }
 
     int getDistance(MotionEvent event) {
         int dx = (int) (event.getX(0) - event.getX(1));
         int dy = (int) (event.getY(0) - event.getY(1));
         return (int) (Math.sqrt(dx * dx + dy * dy));
-    }
-
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
     }
 }
