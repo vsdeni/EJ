@@ -78,12 +78,6 @@ public class HeadersAdapter extends CursorAdapter {
         return view;
     }
 
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void blur(Bitmap bkg, View view) {
-
-    }
-
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         if (cursor != null) {
@@ -165,7 +159,17 @@ public class HeadersAdapter extends CursorAdapter {
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
+                        Bitmap stub = Bitmap.createBitmap(mThumbnailWidht, mThumbnailHeight, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(stub);
+                        canvas.drawColor(mContext.getResources().getColor(R.color.veryLightGray));
+                        try {
+                            ImageLoader.getInstance().getDiskCache().save(imageUri, stub);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        viewHolder.blurView.setBackgroundDrawable(new BitmapDrawable(
+                                mContext.getResources(), stub));
+                        viewHolder.blurView.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -228,10 +232,9 @@ public class HeadersAdapter extends CursorAdapter {
             return overlay;
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            mView.setBackground(new BitmapDrawable(
+            mView.setBackgroundDrawable(new BitmapDrawable(
                     mContext.getResources(), bitmap));
             mView.setVisibility(View.VISIBLE);
             super.onPostExecute(bitmap);
