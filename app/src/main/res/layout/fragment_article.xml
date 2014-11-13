@@ -24,6 +24,8 @@
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="5dp"
                     android:gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
                     android:shadowColor="#11000000"
                     android:shadowDx="5"
                     android:textStyle="bold"

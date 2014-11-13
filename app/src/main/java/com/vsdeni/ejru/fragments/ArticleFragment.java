@@ -228,31 +228,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     private class SaveArticleAsyncTask extends AsyncTask<ArrayList<Article>, Void, Void> {
 
-        private String getBodyWithoutRedundantTags(String text) {
-            int tagOpenPosition = text.indexOf("<img src=");
-            while (tagOpenPosition >= 0) {
-                int tagEndPosition = text.indexOf(">", tagOpenPosition);
-                if (tagEndPosition > 0) {
-                    if (tagOpenPosition >= 3) {
-                        String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
-                        if (tagBefore.equals("<p>")) {
-                            tagOpenPosition = tagOpenPosition - 3;
-                        }
-                    }
-                    String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
-                    text = text.replace(tagContent, "");
-                }
-                tagOpenPosition = text.indexOf("<img src=");
-            }
-
-            tagOpenPosition = text.indexOf("<br");
-            while (tagOpenPosition == 0) {
-                text = text.substring(6);
-                tagOpenPosition = text.indexOf("<br");
-            }
-
-            return text;
-        }
 
         @Override
         protected Void doInBackground(ArrayList<Article>... params) {
@@ -264,7 +239,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 for (Article article : data) {
                     values.clear();
                     values.put(ArticlesModelColumns.ID, mId);
-                    values.put(ArticlesModelColumns.BODY, getBodyWithoutRedundantTags(article.getBody()));
+                    values.put(ArticlesModelColumns.BODY, Utils.cutRedundantTags(article.getBody()));
                     values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
                     values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
                     values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);
