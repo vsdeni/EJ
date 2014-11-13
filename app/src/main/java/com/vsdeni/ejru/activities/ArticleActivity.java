@@ -1,23 +1,11 @@
 package com.vsdeni.ejru.activities;
 
 import android.app.ActionBar;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
-import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.fragments.ArticleFragment;
-import com.vsdeni.ejru.model.Article;
-import com.vsdeni.ejru.network.ArticleRequest;
-
-import java.util.ArrayList;
 
 /**
  * Created by Admin on 06.09.2014.
