@@ -63,6 +63,20 @@
         android:textSize="12sp"/>
 
     <TextView
+        android:id="@+id/tv_header_category"
+        android:background="@android:color/darker_gray"
+        android:textColor="@android:color/white"
+        android:text="В обществе"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:textSize="12sp"
+        android:layout_alignTop="@id/tv_header_date"
+        android:layout_alignBottom="@id/tv_header_date"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
         android:id="@+id/tv_spoiler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

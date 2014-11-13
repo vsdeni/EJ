@@ -66,11 +66,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_launcher, R.string.app_name, R.drawable.ic_launcher);
+                R.drawable.ic_home, R.string.app_name, R.drawable.ic_launcher);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
+            actionBar.setTitle("");
+            actionBar.setIcon(R.drawable.ic_home);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }
