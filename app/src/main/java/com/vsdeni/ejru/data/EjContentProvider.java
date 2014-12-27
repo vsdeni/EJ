@@ -85,9 +85,14 @@ public class EjContentProvider extends ContentProvider {
                 columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + " AS a_id");
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME, HEADERS_TABLE_NAME + "." + HeadersModelColumns.NAME);
                 columnMap.put(AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME, AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.NAME + " AS author_name");
+                columnMap.put(CATEGORIES_TABLE_NAME + "." + CategoriesModelColumns.NAME, CATEGORIES_TABLE_NAME + "." + CategoriesModelColumns.NAME + " AS category_name");
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.CATEGORY_ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns.CATEGORY_ID);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.TIMESTAMP, HEADERS_TABLE_NAME + "." + HeadersModelColumns.TIMESTAMP);
-                String tables = HEADERS_TABLE_NAME + " LEFT OUTER JOIN " + AUTHORS_TABLE_NAME + " ON (" + HEADERS_TABLE_NAME + "." + HeadersModelColumns.AUTHOR_ID + " = " + AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + ")";
+                String tables = HEADERS_TABLE_NAME + "" +
+                        " LEFT OUTER JOIN " + AUTHORS_TABLE_NAME + " " +
+                        " ON (" + HEADERS_TABLE_NAME + "." + HeadersModelColumns.AUTHOR_ID + " = " + AUTHORS_TABLE_NAME + "." + AuthorsModelColumns.ID + ")" +
+                        " LEFT OUTER JOIN " + CATEGORIES_TABLE_NAME + " " +
+                        " ON (" + HEADERS_TABLE_NAME + "." + HeadersModelColumns.CATEGORY_ID + " = " + CATEGORIES_TABLE_NAME + "." + CategoriesModelColumns.ID + ")";
                 qb.setProjectionMap(columnMap);
                 qb.setTables(tables);
                 break;

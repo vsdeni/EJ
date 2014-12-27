@@ -3,6 +3,7 @@ package com.vsdeni.ejru.activities;
 import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,10 +18,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.SettingsActivity;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
 import com.vsdeni.ejru.data.AuthorsModelColumns;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
@@ -42,7 +45,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerAdapter mAdapter;
+    private DrawerAdapter mDrawerAdapter;
 
     private int mCategoryId;
     private String mCategoryName;
@@ -55,19 +58,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         setContentView(R.layout.activity_main);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
-        mAdapter = new DrawerAdapter(this, null, true);
-        mDrawerList.setAdapter(mAdapter);
+        mDrawerAdapter = new DrawerAdapter(this, null, true);
+        mDrawerList.setAdapter(mDrawerAdapter);
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_launcher, R.string.title, R.drawable.ic_launcher);
+                R.drawable.ic_home, R.string.app_name, R.drawable.ic_launcher);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         ActionBar actionBar = getActionBar();
         if (actionBar != null) {
+            actionBar.setTitle("");
+            actionBar.setIcon(R.drawable.ic_home);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }
@@ -98,13 +103,23 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         return true;
     }
 
+    private void openSettings() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    private void refresh() {
+        mHeadersFragment.onRefresh();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_refresh) {
+            refresh();
             return true;
         }
         if (mDrawerToggle.onOptionsItemSelected(item)) {
@@ -120,9 +135,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        mDrawerAdapter.swapCursor(data);
         if (data == null || data.getCount() == 0) {
-            getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(true);
             getSpiceManager().execute(mCategoriesRequest, new CategoriesRequestListener());
         } else {
             setPage(0);
@@ -135,12 +150,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void setPage(int position) {
-        Cursor cursor = (Cursor) mAdapter.getItem(position);
+        Cursor cursor = (Cursor) mDrawerAdapter.getItem(position);
         mCategoryId = cursor.getInt(cursor.getColumnIndex(CategoriesModelColumns.ID));
         mCategoryName = cursor.getString(cursor.getColumnIndex(CategoriesModelColumns.NAME));
         mHeadersFragment.setCategoryId(mCategoryId);
-        setTitle(mCategoryName);
+        mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawers();
+
+        ActionBar actionBar = getActionBar();
+        if (position == 0) {
+            actionBar.setIcon(R.drawable.ic_home);
+            setTitle("");
+        } else {
+            setTitle(mCategoryName);
+            actionBar.setIcon(R.drawable.ic_launcher);
+        }
     }
 
     @Override
@@ -152,11 +176,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }
 
         @Override
         public void onRequestSuccess(Category.List categories) {
+            getSpiceManager().execute(mAuthorsRequest, new AuthorsRequestListener());
             Log.i(TAG, "Categories request success");
             if (categories != null) {
                 new SaveCategoriesAsyncTask().execute(categories.getCategories());
@@ -168,6 +195,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            mHeadersFragment.mSwipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(MainActivity.this, getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
             Log.e(TAG, spiceException.getMessage());
         }
 

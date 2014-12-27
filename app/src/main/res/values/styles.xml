@@ -1,11 +1,18 @@
 <resources>
 
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
+        <item name="asb_switchStyle">@style/Widget.Holo.CompoundButton.Switch</item>
+        <item name="asb_switchPreferenceStyle">@style/Preference.SwitchPreference</item>
         <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">@color/brandBeige</item>
+        <item name="android:background">@color/brandAlmostWhite</item>
+        <item name="android:titleTextStyle">@style/AppTheme.MyActionBar.TitleTextStyle</item>
+    </style>
+
+    <style name="AppTheme.MyActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

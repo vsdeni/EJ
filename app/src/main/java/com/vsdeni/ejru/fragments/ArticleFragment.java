@@ -1,5 +1,7 @@
 package com.vsdeni.ejru.fragments;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -9,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -18,11 +21,10 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -39,14 +41,13 @@ import java.util.ArrayList;
 /**
  * Created by Admin on 05.09.2014.
  */
-public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = ArticleFragment.class.getSimpleName();
 
     private ScrollView mScrollView;
     private TextView mProgressTitle;
-    private ProgressBar mProgressbar;
 
-    private View mRootView;
+    private SwipeRefreshLayout mRootView;
     private PinchToZoomTextView mBody;
     private ImageView mImage;
 
@@ -82,7 +83,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_article, container, false);
+        mRootView = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_article, container, false);
         mBody = (PinchToZoomTextView) mRootView.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -96,7 +97,12 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
         mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
         mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
-        mProgressbar = (ProgressBar) mRootView.findViewById(R.id.progressbar);
+
+        mProgressTitle.setVisibility(View.GONE);
+
+        mRootView.setOnRefreshListener(this);
+        mRootView.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
+        mRootView.setEnabled(false);
 
         mProgressTitle.setText(mTitle + "\n" + mAuthorName);
 
@@ -132,26 +138,46 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
+    private void moveArticleToTop(final float curMargin, final float diff) {
+        Animation a = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
+                params.topMargin = (int) (curMargin - (diff * interpolatedTime));
+                mScrollView.setLayoutParams(params);
+            }
+        };
+        a.setDuration(400);
+        mScrollView.startAnimation(a);
+
+        Integer colorFrom = getResources().getColor(R.color.veryLightGray);
+        Integer colorTo = getResources().getColor(android.R.color.black);
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                mProgressTitle.setTextColor((Integer) animator.getAnimatedValue());
+            }
+
+        });
+        colorAnimation.setDuration(400);
+        colorAnimation.start();
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
             if (data != null && data.moveToFirst()) {
-                setProgressVisible(false);
+                mRootView.setRefreshing(false);
                 final int topMargin = 0;
                 final int curMargin = ((RelativeLayout.LayoutParams) (mScrollView.getLayoutParams())).topMargin;
                 final int diff = curMargin - topMargin;
                 mProgressTitle.setVisibility(View.VISIBLE);
                 if (diff > 0) {
-                    Animation a = new Animation() {
-                        @Override
-                        protected void applyTransformation(float interpolatedTime, Transformation t) {
-                            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
-                            params.topMargin = (int) (curMargin - (diff * interpolatedTime));
-                            mScrollView.setLayoutParams(params);
-                        }
-                    };
-                    a.setDuration(400);
-                    mScrollView.startAnimation(a);
+                    moveArticleToTop(curMargin, diff);
+                } else {
+                    mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
                 }
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
@@ -159,9 +185,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 mRootView.post(new Runnable() {
                     @Override
                     public void run() {
-                        setProgressVisible(true);
+                        mRootView.setRefreshing(true);
                         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mScrollView.getLayoutParams();
-                        params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(75, getActivity());
+                        params.topMargin = ((Utils.getScreenHeight(getActivity()) - Utils.getActionbarHeight(getActivity())) / 2) - (int) Utils.convertDpToPixel(100, getActivity());
                         mScrollView.setLayoutParams(params);
                         mProgressTitle.setVisibility(View.VISIBLE);
                     }
@@ -176,19 +202,19 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
-    private void setProgressVisible(boolean visible) {
-        if (visible) {
-            mProgressbar.setVisibility(View.VISIBLE);
-        } else {
-            mProgressbar.setVisibility(View.GONE);
-        }
+    @Override
+    public void onRefresh() {
+        mRootView.setRefreshing(false);
     }
 
     class ArticleRequestListener implements RequestListener<Article.List> {
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             Log.e(TAG, spiceException.getMessage());
-            setProgressVisible(false);
+            if (isAdded()) {
+                Toast.makeText(getActivity(), getActivity().getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
+            }
+            mRootView.setRefreshing(false);
         }
 
         @Override
@@ -202,31 +228,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     private class SaveArticleAsyncTask extends AsyncTask<ArrayList<Article>, Void, Void> {
 
-        private String getBodyWithoutRedundantTags(String text) {
-            int tagOpenPosition = text.indexOf("<img src=");
-            while (tagOpenPosition >= 0) {
-                int tagEndPosition = text.indexOf(">", tagOpenPosition);
-                if (tagEndPosition > 0) {
-                    if (tagOpenPosition >= 3) {
-                        String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
-                        if (tagBefore.equals("<p>")) {
-                            tagOpenPosition = tagOpenPosition - 3;
-                        }
-                    }
-                    String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
-                    text = text.replace(tagContent, "");
-                }
-                tagOpenPosition = text.indexOf("<img src=");
-            }
-
-            tagOpenPosition = text.indexOf("<br");
-            while (tagOpenPosition == 0) {
-                text = text.substring(6);
-                tagOpenPosition = text.indexOf("<br");
-            }
-
-            return text;
-        }
 
         @Override
         protected Void doInBackground(ArrayList<Article>... params) {
@@ -238,7 +239,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 for (Article article : data) {
                     values.clear();
                     values.put(ArticlesModelColumns.ID, mId);
-                    values.put(ArticlesModelColumns.BODY, getBodyWithoutRedundantTags(article.getBody()));
+                    values.put(ArticlesModelColumns.BODY, Utils.cutRedundantTags(article.getBody()));
                     values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
                     values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
                     values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);

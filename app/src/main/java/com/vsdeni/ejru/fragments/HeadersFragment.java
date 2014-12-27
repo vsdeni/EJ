@@ -18,10 +18,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.Utils;
 import com.vsdeni.ejru.activities.ArticleActivity;
 import com.vsdeni.ejru.activities.BaseActivity;
 import com.vsdeni.ejru.adapters.HeadersAdapter;
@@ -39,8 +41,9 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
     private int mCategoryId;
     private ListView mListView;
     private CursorAdapter mAdapter;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    public SwipeRefreshLayout mSwipeRefreshLayout;
     private HeadersRequest mHeadersRequest;
+    private boolean mRequestRunning;
 
     public static HeadersFragment newInstance(int categoryId) {
         HeadersFragment fr = new HeadersFragment();
@@ -74,7 +77,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         mListView.setAdapter(mAdapter);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandGray, R.color.brandAlmostWhite);
+        mSwipeRefreshLayout.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
         return view;
     }
 
@@ -89,6 +92,10 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data == null || data.getCount() == 0) {
+            mSwipeRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
         mAdapter.swapCursor(data);
     }
 
@@ -106,13 +113,21 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         intent.putExtra("category_id", header.getCategoryId());
         intent.putExtra("author_id", header.getAuthorId());
         intent.putExtra("article_title", header.getName());
-        intent.putExtra("author_name", cursor.getString(cursor.getColumnIndex("author_name")));
+        String authorName = cursor.getString(cursor.getColumnIndex("author_name"));
+        intent.putExtra("author_name", authorName == null ? "" : authorName);
         startActivity(intent);
     }
 
     @Override
     public void onRefresh() {
-        ((BaseActivity) getActivity()).getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
+
+        if (!mRequestRunning) {
+            mRequestRunning = true;
+            ((BaseActivity) getActivity()).getSpiceManager().execute(mHeadersRequest, new HeadersRequestListener());
+        }
     }
 
     class HeadersRequestListener implements RequestListener<Header.List> {
@@ -120,12 +135,17 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             Log.e(TAG, spiceException.getMessage());
-            mSwipeRefreshLayout.setRefreshing(false);
+            if (isAdded()) {
+                Toast.makeText(getActivity(), getString(R.string.error_missed_connection), Toast.LENGTH_SHORT).show();
+                mSwipeRefreshLayout.setRefreshing(false);
+                mRequestRunning = false;
+            }
         }
 
         @Override
         public void onRequestSuccess(Header.List headers) {
             Log.i(TAG, "Headers request success");
+            mRequestRunning = false;
             if (headers != null) {
                 new SaveHeadersAsyncTask().execute(mCategoryId, headers.getHeaders());
             }
@@ -148,7 +168,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
                     values.put(HeadersModelColumns.AUTHOR_ID, header.getAuthorId());
                     values.put(HeadersModelColumns.TIMESTAMP, header.getTimestamp());
                     values.put(HeadersModelColumns.CATEGORY_ID, header.getCategoryId());
-                    values.put(HeadersModelColumns.SPOILER, header.getSpoiler());
+                    values.put(HeadersModelColumns.SPOILER, Utils.cutRedundantTags(header.getSpoiler()));
                     values.put(HeadersModelColumns.THUMBNAIL_URL, header.getThumbnailUrl());
                     resolver.insert(HeadersModelColumns.URI, values);
                 }

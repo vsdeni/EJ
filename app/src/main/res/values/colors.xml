@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="brandBurgundy">#811517</color>
+    <color name="brandRaspberry">#841830</color>
     <color name="brandAlmostWhite">#ebe8d9</color>
-    <color name="brandGray">#b5a78d</color>
+    <color name="brandDarkBeige">#b5a78d</color>
     <color name="brandBeige">#ddd4be</color>
+    <color name="brandDarkGray">#3f3e40</color>
+    <color name="veryLightGray">#22000000</color>
 </resources>

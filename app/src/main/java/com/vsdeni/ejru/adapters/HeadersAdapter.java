@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
@@ -72,15 +73,10 @@ public class HeadersAdapter extends CursorAdapter {
         viewHolder.tvDate = (TextView) view.findViewById(R.id.tv_header_date);
         viewHolder.tvSpoiler = (TextView) view.findViewById(R.id.tv_spoiler);
         viewHolder.tvThumbnail = (TextView) view.findViewById(R.id.tv_thumbnail);
+        viewHolder.tvCategory = (TextView) view.findViewById(R.id.tv_header_category);
         viewHolder.blurView = view.findViewById(R.id.blur);
         view.setTag(viewHolder);
         return view;
-    }
-
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void blur(Bitmap bkg, View view) {
-
     }
 
     @Override
@@ -102,9 +98,10 @@ public class HeadersAdapter extends CursorAdapter {
 
             viewHolder.tvThumbnail.setText(name);
 
-            viewHolder.tvThumbnail.post(new Runnable() {
+            final ViewTreeObserver obs = viewHolder.tvThumbnail.getViewTreeObserver();
+            obs.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
-                public void run() {
+                public boolean onPreDraw() {
                     int start = 0;
                     int end = 0;
                     int count = viewHolder.tvThumbnail.getLineCount();
@@ -134,6 +131,16 @@ public class HeadersAdapter extends CursorAdapter {
                         }
                         viewHolder.tvThumbnail.setText(spannableString);
                     }
+
+                    viewHolder.tvThumbnail.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+            });
+
+            viewHolder.tvThumbnail.post(new Runnable() {
+                @Override
+                public void run() {
+
                 }
             });
 
@@ -153,7 +160,17 @@ public class HeadersAdapter extends CursorAdapter {
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
+                        Bitmap stub = Bitmap.createBitmap(mThumbnailWidht, mThumbnailHeight, Bitmap.Config.ARGB_8888);
+                        Canvas canvas = new Canvas(stub);
+                        canvas.drawColor(mContext.getResources().getColor(R.color.veryLightGray));
+                        try {
+                            ImageLoader.getInstance().getDiskCache().save(imageUri, stub);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        viewHolder.blurView.setBackgroundDrawable(new BitmapDrawable(
+                                mContext.getResources(), stub));
+                        viewHolder.blurView.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -171,6 +188,7 @@ public class HeadersAdapter extends CursorAdapter {
             long timestamp = cursor.getLong(cursor.getColumnIndex(HeadersModelColumns.TIMESTAMP));
             mCalendar.setTimeInMillis(timestamp * 1000);
             viewHolder.tvDate.setText(mDateFormat.format(mCalendar.getTime()));
+            viewHolder.tvCategory.setText(cursor.getString(cursor.getColumnIndex("category_name")));
             viewHolder.tvAuthor.setText(cursor.getString(cursor.getColumnIndex("author_name")));
             viewHolder.tvSpoiler.setText(Html.fromHtml(cursor.getString(cursor.getColumnIndex(HeadersModelColumns.SPOILER))));
         }
@@ -216,10 +234,9 @@ public class HeadersAdapter extends CursorAdapter {
             return overlay;
         }
 
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            mView.setBackground(new BitmapDrawable(
+            mView.setBackgroundDrawable(new BitmapDrawable(
                     mContext.getResources(), bitmap));
             mView.setVisibility(View.VISIBLE);
             super.onPostExecute(bitmap);
@@ -484,6 +501,7 @@ public class HeadersAdapter extends CursorAdapter {
         TextView tvDate;
         TextView tvSpoiler;
         TextView tvThumbnail;
+        TextView tvCategory;
         View blurView;
     }
 }

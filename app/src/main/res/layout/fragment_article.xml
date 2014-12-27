@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                              android:layout_width="match_parent"
+                                              android:layout_height="match_parent">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
+        <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-            <ProgressBar
-                android:visibility="gone"
-                android:id="@+id/progressbar"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerHorizontal="true"/>
-
-            <TextView
-                android:visibility="gone"
-                android:id="@+id/progress_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/progressbar"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="5dp"
-                android:gravity="center"
-                android:shadowColor="#11000000"
-                android:shadowDx="5"
-                android:shadowDy="5"
-                android:shadowRadius="5"
-                android:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
-                android:textColor="#33000000"
-                android:textSize="20sp"/>
-
-
-            <com.vsdeni.ejru.views.PinchToZoomTextView
-                android:id="@+id/tv_article_body"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/progress_title"
-                android:layout_margin="5dp"
-                android:textSize="18sp"/>
-        </RelativeLayout>
-    </ScrollView>
-</RelativeLayout>
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/progress_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:shadowColor="#11000000"
+                    android:shadowDx="5"
+                    android:textStyle="bold"
+                    android:shadowDy="5"
+                    android:shadowRadius="5"
+                    android:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
+                    android:textColor="@color/veryLightGray"
+                    android:textSize="20sp"/>
+
+                <com.vsdeni.ejru.views.PinchToZoomTextView
+                    android:id="@+id/tv_article_body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/progress_title"
+                    android:layout_margin="5dp"
+                    android:textSize="18sp"/>
+            </RelativeLayout>
+        </ScrollView>
+    </RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>

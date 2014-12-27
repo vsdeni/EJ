@@ -1,5 +1,7 @@
 package com.vsdeni.ejru.network;
 
+import android.app.Notification;
+
 import com.octo.android.robospice.retrofit.RetrofitGsonSpiceService;
 
 /**
@@ -11,6 +13,12 @@ public class RequestService extends RetrofitGsonSpiceService {
     public void onCreate() {
         super.onCreate();
         addRetrofitInterface(EjApi.class);
+    }
+
+    @Override
+    public Notification createDefaultNotification() {
+        //Returning null we won't start the service in foreground.
+        return null;
     }
 
     @Override
