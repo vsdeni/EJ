@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.vsdeni.ejru"
         minSdkVersion 15
-        targetSdkVersion 19
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
@@ -37,6 +37,6 @@ dependencies {
     }
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:21.0.0'
     compile 'org.jraf:android-switch-backport:1.4.0'
 }
