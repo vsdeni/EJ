@@ -1,86 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp">
 
-    <RelativeLayout
-        android:id="@+id/thumbnail_holder"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginBottom="5dp">
-
-        <ImageView
-            android:id="@+id/iv_thumbnail"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
-
-        <View
-            android:id="@+id/blur"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        <com.vsdeni.ejru.views.TitleTextView
-            android:layout_margin="10dp"
-            android:id="@+id/tv_thumbnail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:textStyle="bold"
-            android:gravity="center_vertical"
-            android:padding="3dp"
-            android:text="Итоги недели. Ничего личного"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"/>
-    </RelativeLayout>
-
     <TextView
-        android:id="@+id/tv_header_date"
+        android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/thumbnail_holder"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
-        android:text="17 сентября 2014"
+        tools:text="17 сентября 2014"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"/>
 
-    <TextView
-        android:id="@+id/tv_header_author"
+    <com.vsdeni.ejru.views.TitleTextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/tv_header_date"
+        android:textStyle="bold"
+        android:layout_below="@id/date"
+        tools:text="Итоги недели. Ничего личного"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"/>
+
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/title"
+        android:id="@+id/thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="175dp"
+        android:scaleType="fitCenter"/>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/date"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_toRightOf="@id/tv_header_date"
+        android:layout_toRightOf="@id/date"
         android:text="Александр Гольц"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"/>
 
     <TextView
-        android:id="@+id/tv_header_category"
+        android:layout_marginTop="5dp"
+        android:id="@+id/category"
         android:background="@android:color/darker_gray"
         android:textColor="@android:color/white"
-        android:text="В обществе"
+        tools:text="В обществе"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         android:textSize="12sp"
-        android:layout_alignTop="@id/tv_header_date"
-        android:layout_alignBottom="@id/tv_header_date"
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/tv_spoiler"
+        android:layout_marginTop="5dp"
+        android:id="@+id/spoiler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_header_date"
-        android:text="asdf;lkajsf sd;lf ks;flasjl;kjfsa"/>
+        android:layout_below="@id/thumbnail"
+        tools:text="asdf;lkajsf sd;lf ks;flasjl;kjfsa"/>
 
 </RelativeLayout>

@@ -77,7 +77,7 @@ public class EjContentProvider extends ContentProvider {
             case HEADERS:
             case HEADER:
                 qb = new SQLiteQueryBuilder();
-                HashMap<String, String> columnMap = new HashMap<String, String>(2);
+                HashMap<String, String> columnMap = new HashMap<>(2);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns._ID);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID, HEADERS_TABLE_NAME + "." + HeadersModelColumns.ID);
                 columnMap.put(HEADERS_TABLE_NAME + "." + HeadersModelColumns.SPOILER, HEADERS_TABLE_NAME + "." + HeadersModelColumns.SPOILER);
