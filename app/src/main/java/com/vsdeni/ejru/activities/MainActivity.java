@@ -63,19 +63,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setCustomView(R.layout.actionbar);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.drawable.ic_home, R.string.app_name, R.drawable.ic_launcher);
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,
+                mDrawerLayout,
+                R.drawable.ic_drawer,
+                R.string.app_name,
+                R.string.app_name);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle("");
-            actionBar.setIcon(R.drawable.ic_home);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
             mHeadersFragment = new HeadersFragment();
@@ -156,15 +158,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mHeadersFragment.setCategoryId(mCategoryId);
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawers();
-
-        ActionBar actionBar = getActionBar();
-        if (position == 0) {
-            actionBar.setIcon(R.drawable.ic_home);
-            setTitle("");
-        } else {
-            setTitle(mCategoryName);
-            actionBar.setIcon(R.drawable.ic_launcher);
-        }
     }
 
     @Override

@@ -36,11 +36,17 @@
                     android:textColor="@color/veryLightGray"
                     android:textSize="20sp"/>
 
+                <ImageView
+                    android:layout_below="@id/progress_title"
+                    android:id="@+id/illustration"
+                    android:layout_width="match_parent"
+                    android:layout_height="175dp"/>
+
                 <com.vsdeni.ejru.views.PinchToZoomTextView
                     android:id="@+id/tv_article_body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/progress_title"
+                    android:layout_below="@id/illustration"
                     android:layout_margin="5dp"
                     android:textSize="18sp"/>
             </RelativeLayout>

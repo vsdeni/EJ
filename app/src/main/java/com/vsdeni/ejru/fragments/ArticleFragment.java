@@ -2,9 +2,11 @@ package com.vsdeni.ejru.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
@@ -86,6 +91,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         mRootView = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_article, container, false);
         mBody = (PinchToZoomTextView) mRootView.findViewById(R.id.tv_article_body);
         mBody.setMovementMethod(LinkMovementMethod.getInstance());
+
+        mImage = (ImageView) mRootView.findViewById(R.id.illustration);
 
         int customTextSize = Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity());
 
@@ -165,6 +172,32 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         colorAnimation.start();
     }
 
+    private void loadImage(){
+        String thumbnailUrl = "http://ej.ru/img/content/Notes/" + mId + "/anons/anons350.jpg";
+
+        ImageLoader.getInstance().displayImage(thumbnailUrl, mImage, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                mImage.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                mImage.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+
+            }
+        });
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (isAdded()) {
@@ -179,6 +212,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 } else {
                     mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
                 }
+                loadImage();
                 Article article = Article.toArticle(data);
                 mBody.setText(Html.fromHtml(article.getBody()));
             } else {
