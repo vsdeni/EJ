@@ -3,6 +3,7 @@
 <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                               xmlns:tools="http://schemas.android.com/tools"
                                               android:layout_width="match_parent"
+                                              android:background="#FFFFFF"
                                               android:layout_height="match_parent">
 
     <RelativeLayout
@@ -16,7 +17,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
                 <TextView
                     android:id="@+id/progress_title"
@@ -36,19 +37,22 @@
                     android:textColor="@color/veryLightGray"
                     android:textSize="20sp"/>
 
-                <ImageView
-                    android:layout_below="@id/progress_title"
-                    android:id="@+id/illustration"
-                    android:layout_width="match_parent"
-                    android:layout_height="175dp"/>
-
-                <com.vsdeni.ejru.views.PinchToZoomTextView
-                    android:id="@+id/tv_article_body"
+                <WebView
+                    android:id="@+id/body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/illustration"
+                    android:layout_below="@id/progress_title">
+                </WebView>
+
+                <ImageView
+                    android:id="@+id/footer"
+                    android:layout_below="@id/body"
+                    android:visibility="gone"
+                    android:layout_alignParentRight="true"
                     android:layout_margin="5dp"
-                    android:textSize="18sp"/>
+                    android:src="@drawable/floor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </RelativeLayout>
         </ScrollView>
     </RelativeLayout>

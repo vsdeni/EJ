@@ -2,44 +2,40 @@ package com.vsdeni.ejru.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
-import android.widget.ImageView;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.Utils;
 import com.vsdeni.ejru.activities.BaseActivity;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;
 import com.vsdeni.ejru.network.ArticleRequest;
-import com.vsdeni.ejru.views.PinchToZoomTextView;
 
 import java.util.ArrayList;
 
@@ -53,16 +49,14 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private TextView mProgressTitle;
 
     private SwipeRefreshLayout mRootView;
-    private PinchToZoomTextView mBody;
-    private ImageView mImage;
+    private WebView mWebView;
 
     private int mId;
     private String mTitle;
     private int mAuthorId;
     private int mCategoryId;
     private String mAuthorName;
-
-    private float mStartingFontSize;
+    private View mFooter;
 
     private ArticleRequest mArticleRequest;
 
@@ -79,28 +73,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
-    public void onPause() {
-        if (mStartingFontSize != mBody.getTextSize()) {
-            Utils.Prefs.saveInt(Utils.Prefs.FONT_SIZE, Utils.pixelsToSp(mBody.getTextSize(), getActivity()), getActivity());
-        }
-        super.onPause();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_article, container, false);
-        mBody = (PinchToZoomTextView) mRootView.findViewById(R.id.tv_article_body);
-        mBody.setMovementMethod(LinkMovementMethod.getInstance());
-
-        mImage = (ImageView) mRootView.findViewById(R.id.illustration);
-
-        int customTextSize = Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity());
-
-        if (customTextSize != 0) {
-            mBody.setTextSize(customTextSize);
-        }
-
-        mStartingFontSize = mBody.getTextSize();
+        mWebView = (WebView) mRootView.findViewById(R.id.body);
 
         mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
         mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
@@ -110,6 +85,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         mRootView.setOnRefreshListener(this);
         mRootView.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
         mRootView.setEnabled(false);
+
+        mFooter = mRootView.findViewById(R.id.footer);
 
         mProgressTitle.setText(mTitle + "\n" + mAuthorName);
 
@@ -172,30 +149,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         colorAnimation.start();
     }
 
-    private void loadImage(){
-        String thumbnailUrl = "http://ej.ru/img/content/Notes/" + mId + "/anons/anons350.jpg";
-
-        ImageLoader.getInstance().displayImage(thumbnailUrl, mImage, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                mImage.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                mImage.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-
-            }
-        });
+    private String getHtmlData(String bodyHTML) {
+        String head = "<head><style>img{max-width: 100%; width:auto; height: auto;}</style></head>";
+        return "<html>" + head + "<body>" + bodyHTML + "</body></html>";
     }
 
     @Override
@@ -212,9 +168,25 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 } else {
                     mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
                 }
-                loadImage();
                 Article article = Article.toArticle(data);
-                mBody.setText(Html.fromHtml(article.getBody()));
+
+                WebSettings webSettings = mWebView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING);
+                } else {
+                    webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
+                }
+                mWebView.setWebViewClient(new EjWebClient(new PageListener() {
+                    @Override
+                    public void onFinished() {
+                        if (isAdded() && mFooter != null) {
+                            mFooter.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }));
+
+                mWebView.loadDataWithBaseURL(Consts.BASE_URL, getHtmlData(article.getBody()), "text/html", "utf-8", null);
             } else {
                 mRootView.post(new Runnable() {
                     @Override
@@ -273,7 +245,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 for (Article article : data) {
                     values.clear();
                     values.put(ArticlesModelColumns.ID, mId);
-                    values.put(ArticlesModelColumns.BODY, Utils.cutRedundantTags(article.getBody()));
+                    values.put(ArticlesModelColumns.BODY, article.getBody());
                     values.put(ArticlesModelColumns.IMAGE_URL, article.getImageUrl());
                     values.put(ArticlesModelColumns.AUTHOR_ID, mAuthorId);
                     values.put(ArticlesModelColumns.CATEGORY_ID, mCategoryId);
@@ -310,6 +282,24 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     mScrollView.scrollTo(0, scrollTo);
                 }
             });
+        }
+    }
+
+    private interface PageListener {
+        public void onFinished();
+    }
+
+    private class EjWebClient extends WebViewClient {
+        private PageListener mPageListener;
+
+        public EjWebClient(PageListener listener) {
+            mPageListener = listener;
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            mPageListener.onFinished();
         }
     }
 }

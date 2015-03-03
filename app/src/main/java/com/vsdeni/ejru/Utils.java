@@ -145,30 +145,4 @@ public class Utils {
         return 0;
     }
 
-    public static String cutRedundantTags(String text) {
-        int tagOpenPosition = text.indexOf("<img src=");
-        while (tagOpenPosition >= 0) {
-            int tagEndPosition = text.indexOf(">", tagOpenPosition);
-            if (tagEndPosition > 0) {
-                if (tagOpenPosition >= 3) {
-                    String tagBefore = text.substring(tagOpenPosition - 3, tagOpenPosition);
-                    if (tagBefore.equals("<p>")) {
-                        tagOpenPosition = tagOpenPosition - 3;
-                    }
-                }
-                String tagContent = text.substring(tagOpenPosition, tagEndPosition + 1);
-                text = text.replace(tagContent, "");
-            }
-            tagOpenPosition = text.indexOf("<img src=");
-        }
-
-        tagOpenPosition = text.indexOf("<br");
-        while (tagOpenPosition == 0) {
-            text = text.substring(6);
-            tagOpenPosition = text.indexOf("<br");
-        }
-
-        return text;
-    }
-
 }

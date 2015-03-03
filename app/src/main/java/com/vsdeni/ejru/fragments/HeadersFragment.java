@@ -168,7 +168,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
                     values.put(HeadersModelColumns.AUTHOR_ID, header.getAuthorId());
                     values.put(HeadersModelColumns.TIMESTAMP, header.getTimestamp());
                     values.put(HeadersModelColumns.CATEGORY_ID, header.getCategoryId());
-                    values.put(HeadersModelColumns.SPOILER, Utils.cutRedundantTags(header.getSpoiler()));
+                    values.put(HeadersModelColumns.SPOILER, header.getSpoiler());
                     values.put(HeadersModelColumns.THUMBNAIL_URL, header.getThumbnailUrl());
                     resolver.insert(HeadersModelColumns.URI, values);
                 }
