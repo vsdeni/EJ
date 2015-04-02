@@ -52,9 +52,10 @@ public class ArticleActivity extends BaseActivity {
         titleView.setText(articleTitle);
 
         if (savedInstanceState == null) {
+            ArticleFragment fragment = ArticleFragment.newInstance(articleId, articleTitle, authorId, categoryId, authorName);
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.content_frame, ArticleFragment.newInstance(articleId, articleTitle, authorId, categoryId, authorName))
+                    .add(R.id.content_frame, fragment)
                     .commit();
         }
 

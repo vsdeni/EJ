@@ -13,11 +13,11 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.WebSettings;
@@ -60,6 +60,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private View mFooter;
 
     private ArticleRequest mArticleRequest;
+
+    private float mScrolled;
 
     public static ArticleFragment newInstance(int id, String title, int authorId, int categoryId, String authorName) {
         ArticleFragment fr = new ArticleFragment();
@@ -184,6 +186,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                         if (isAdded() && mFooter != null) {
                             mFooter.setVisibility(View.VISIBLE);
                         }
+                        if (isAdded()) {
+                            restoreListViewPosition();
+                        }
                     }
                 }));
 
@@ -202,6 +207,24 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 ((BaseActivity) getActivity()).getSpiceManager().execute(mArticleRequest, new ArticleRequestListener());
             }
         }
+    }
+
+    private void restoreListViewPosition() {
+        mScrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int height = mScrollView.getHeight();
+                if (height > 0) {
+                    int scrollTo = (int) (((float) mScrollView.getHeight() / 100f) * mScrolled);
+                    mScrollView.scrollTo(0, scrollTo);
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                        mScrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    } else {
+                        mScrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -275,19 +298,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            final float scrolled = savedInstanceState.getFloat("scroll_position");
-            mScrollView.post(new Runnable() {
-                @Override
-                public void run() {
-                    int scrollTo = (int) (((float) mScrollView.getHeight() / 100f) * scrolled);
-                    mScrollView.scrollTo(0, scrollTo);
-                }
-            });
+            mScrolled = savedInstanceState.getFloat("scroll_position");
+            restoreListViewPosition();
         }
     }
 
     private interface PageListener {
-        public void onFinished();
+        void onFinished();
     }
 
     private class EjWebClient extends WebViewClient {

@@ -46,6 +46,8 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
     private HeadersRequest mHeadersRequest;
     private boolean mRequestRunning;
 
+    private boolean mIsForceUpdating;
+
     private Parcelable mListInstanceState;
 
     public static HeadersFragment newInstance(int categoryId) {
@@ -109,8 +111,12 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
             onRefresh();
         }
         mAdapter.swapCursor(data);
-        if (mListView != null && mListInstanceState != null) {
-            mListView.onRestoreInstanceState(mListInstanceState);
+        if (!mIsForceUpdating) {
+            if (mListView != null && mListInstanceState != null) {
+                mListView.onRestoreInstanceState(mListInstanceState);
+            }
+        } else {
+            mIsForceUpdating = false;
         }
     }
 
@@ -135,6 +141,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onRefresh() {
+        mIsForceUpdating = true;
         if (!mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(true);
         }
