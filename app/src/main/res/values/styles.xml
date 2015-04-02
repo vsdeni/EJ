@@ -1,13 +1,7 @@
 <resources>
 
-    <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/brandBeige</item>
+        <item name="colorPrimaryDark">@color/brandDarkBeige</item>
     </style>
-
-    <style name="ActionBarStyle" parent="android:Widget.ActionBar">
-        <item name="android:background">@color/brandBeige</item>
-        <item name="android:icon">@drawable/empty</item>
-        <item name="android:displayOptions">showHome</item>
-    </style>
-
 </resources>

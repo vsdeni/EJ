@@ -1,6 +1,5 @@
 package com.vsdeni.ejru.activities;
 
-import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -8,11 +7,12 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +51,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private int mCategoryId;
     private String mCategoryName;
 
+    Toolbar mToolbar;
+
     private HeadersFragment mHeadersFragment;
 
     @Override
@@ -64,25 +66,24 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList.setOnItemClickListener(this);
         mCategoriesRequest = new CategoriesRequest();
         mAuthorsRequest = new AuthorsRequest();
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setCustomView(R.layout.actionbar);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,
                 mDrawerLayout,
-                R.drawable.ic_drawer,
+                mToolbar,
                 R.string.app_name,
                 R.string.app_name);
         // Set the drawer toggle as the DrawerListener
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
             mHeadersFragment = new HeadersFragment();
-            mHeadersFragment.setRetainInstance(true);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.content_frame, mHeadersFragment, "headers")

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.HeadersModelColumns;
 
@@ -64,12 +65,12 @@ public class HeadersAdapter extends CursorAdapter {
         if (cursor != null) {
             final ViewHolder viewHolder = (ViewHolder) view.getTag();
             final int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
-            String thumbnailUrl = "http://ej.ru/img/content/Notes/" + id + "/anons/anons350.jpg";
+            String thumbnailUrl = Consts.BASE_URL + "/img/content/Notes/" + id + "/anons/anons350.jpg";
 
             ImageLoader.getInstance().displayImage(thumbnailUrl, viewHolder.thumbnail, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
-                    viewHolder.thumbnail.setVisibility(View.VISIBLE);
+                    viewHolder.thumbnail.setVisibility(View.GONE);
                 }
 
                 @Override
@@ -79,7 +80,7 @@ public class HeadersAdapter extends CursorAdapter {
 
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-
+                    viewHolder.thumbnail.setVisibility(View.VISIBLE);
                 }
 
                 @Override

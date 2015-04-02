@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -45,6 +46,8 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
     private HeadersRequest mHeadersRequest;
     private boolean mRequestRunning;
 
+    private Parcelable mListInstanceState;
+
     public static HeadersFragment newInstance(int categoryId) {
         HeadersFragment fr = new HeadersFragment();
         Bundle args = new Bundle(1);
@@ -65,6 +68,11 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         if (args != null) {
             mCategoryId = args.getInt("cat_id");
         }
+
+        if (savedInstanceState != null) {
+            mListInstanceState = savedInstanceState.getParcelable("list");
+        }
+
         mHeadersRequest = new HeadersRequest();
     }
 
@@ -75,9 +83,13 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         mListView.setOnItemClickListener(this);
         mAdapter = new HeadersAdapter(getActivity(), null, true);
         mListView.setAdapter(mAdapter);
+
+        if (mListView != null && mListInstanceState != null) {
+            mListView.onRestoreInstanceState(mListInstanceState);
+        }
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorScheme(R.color.brandBeige, R.color.brandBurgundy, R.color.brandDarkBeige, R.color.brandAlmostWhite);
         return view;
     }
 
@@ -97,6 +109,9 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
             onRefresh();
         }
         mAdapter.swapCursor(data);
+        if (mListView != null && mListInstanceState != null) {
+            mListView.onRestoreInstanceState(mListInstanceState);
+        }
     }
 
     @Override
@@ -184,4 +199,11 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("list", mListView.onSaveInstanceState());
+    }
+
 }

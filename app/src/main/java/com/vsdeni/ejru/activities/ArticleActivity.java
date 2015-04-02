@@ -1,8 +1,10 @@
 package com.vsdeni.ejru.activities;
 
-import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.fragments.ArticleFragment;
@@ -13,9 +15,13 @@ import com.vsdeni.ejru.fragments.ArticleFragment;
 public class ArticleActivity extends BaseActivity {
     private final static String TAG = ArticleActivity.class.getSimpleName();
 
+    Toolbar mToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_article);
 
         int articleId;
         String articleTitle;
@@ -34,19 +40,21 @@ public class ArticleActivity extends BaseActivity {
             throw new IllegalArgumentException("Article id required!");
         }
 
-        ActionBar actionBar = getActionBar();
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (actionBar != null){
-            actionBar.setTitle("");
-            actionBar.setIcon(R.drawable.ic_home);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
+        TextView authorView = (TextView) mToolbar.findViewById(R.id.article_author);
+        authorView.setText(authorName);
+        TextView titleView = (TextView) mToolbar.findViewById(R.id.article_title);
+        titleView.setText(articleTitle);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, ArticleFragment.newInstance(articleId, articleTitle, authorId, categoryId, authorName))
+                    .add(R.id.content_frame, ArticleFragment.newInstance(articleId, articleTitle, authorId, categoryId, authorName))
                     .commit();
         }
 
