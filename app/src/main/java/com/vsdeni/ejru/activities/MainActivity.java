@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
@@ -268,4 +269,17 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Logs 'install' and 'app activate' App Events.
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
+    }
 }

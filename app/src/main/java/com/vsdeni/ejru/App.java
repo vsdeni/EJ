@@ -2,6 +2,7 @@ package com.vsdeni.ejru;
 
 import android.app.Application;
 
+import com.facebook.FacebookSdk;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -30,5 +31,7 @@ public class App extends Application {
                 .defaultDisplayImageOptions(defaultDisplayOptions)
                 .build();
         ImageLoader.getInstance().init(config);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
     }
 }
