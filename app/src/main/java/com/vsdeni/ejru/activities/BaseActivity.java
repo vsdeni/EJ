@@ -10,7 +10,7 @@ import com.vsdeni.ejru.network.RequestService;
 /**
  * Created by Admin on 11.08.2014.
  */
-public class BaseActivity extends ActionBarActivity {
+public abstract class BaseActivity extends ActionBarActivity {
     private SpiceManager mSpiceManager = new SpiceManager(RequestService.class);
 
     @Override

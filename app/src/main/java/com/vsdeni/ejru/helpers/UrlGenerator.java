@@ -16,4 +16,8 @@ public class UrlGenerator {
     public static String forArticle(Context context, int articleId) {
         return context.getString(R.string.article_url, Consts.BASE_URL, articleId);
     }
+
+    public static String forAuthor(Context context, int authorId) {
+        return context.getString(R.string.author_url, Consts.BASE_URL, authorId);
+    }
 }

@@ -12,9 +12,17 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
  * Created by Admin on 07.09.2014.
  */
 public class App extends Application {
+    private static App sInstance;
+
+    public static App getContext() {
+        return sInstance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        sInstance = this;
 
         DisplayImageOptions defaultDisplayOptions = new DisplayImageOptions.Builder()
                 .resetViewBeforeLoading(true)

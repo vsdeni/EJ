@@ -30,14 +30,31 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <!-- The navigation drawer -->
-        <ListView
+        <RelativeLayout
+            android:background="@color/brandDarkGray"
+            android:layout_gravity="start"
             android:id="@+id/left_drawer"
             android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:choiceMode="singleChoice"
-            android:divider="#11FFFFFF"
-            android:dividerHeight="0.5dp"
-            android:background="@color/brandDarkGray"/>
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/left_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:choiceMode="singleChoice"
+                android:divider="#11FFFFFF"
+                android:dividerHeight="0.5dp"/>
+
+            <Button
+                android:textColor="@color/brandBeige"
+                android:padding="12dp"
+                android:gravity="left"
+                android:layout_below="@id/left_menu"
+                android:id="@+id/about"
+                android:text="@string/menu_item_about"
+                android:background="@android:color/transparent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
     </android.support.v4.widget.DrawerLayout>
 </LinearLayout>

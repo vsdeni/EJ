@@ -13,6 +13,17 @@ public class Author {
     @SerializedName("name")
     private String mName;
 
+    private String mAdditionInfo;
+
+    public Author(int id, String name, String additionInfo) {
+        mId = id;
+        mName = name;
+        mAdditionInfo = additionInfo;
+    }
+
+    public Author() {
+    }
+
     public int getId() {
         return mId;
     }
@@ -27,6 +38,10 @@ public class Author {
 
     public void setName(String name) {
         mName = name;
+    }
+
+    public String getAdditionInfo() {
+        return mAdditionInfo;
     }
 
     public static class List {

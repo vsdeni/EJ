@@ -27,8 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.vsdeni.ejru.activities.BaseActivity"/>
         <activity android:name="com.vsdeni.ejru.activities.ArticleActivity"/>
+        <activity android:name="com.vsdeni.ejru.activities.AboutActivity"/>
 
         <service android:name="com.vsdeni.ejru.network.RequestService"/>
 

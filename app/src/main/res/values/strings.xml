@@ -18,7 +18,19 @@
 
     <string name="image_url">%1$s/img/content/Notes/%2$s/anons/anons350.jpg</string>
     <string name="article_url">%1$s?a=note&amp;id=%2$s</string>
+    <string name="author_url">%1$s?a=author&amp;id=%2$s</string>
 
     <string name="share_title">EJ.RU - %1$s</string>
+    <string name="editors_magazine">«Ежедневный журнал»:</string>
+    <string name="editors_web">Веб-редакция:</string>
+    <string name="editor_1">Александр Рыклин</string>
+    <string name="editor_2">Александр Гольц</string>
+    <string name="editor_3">Ольга Пашкова</string>
+    <string name="web_editor_1">Мария Олендская</string>
+    <string name="web_editor_2">Мария Каменская</string>
+    <string name="web_editor_3">Светлана Солодовник</string>
+    <string name="menu_item_about">О редакции</string>
+    <string name="chief_editor">шеф-редактор</string>
+    <string name="general_director">генеральный директор</string>
 
 </resources>

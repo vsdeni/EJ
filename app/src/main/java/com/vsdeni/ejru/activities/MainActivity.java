@@ -2,6 +2,7 @@ package com.vsdeni.ejru.activities;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -36,7 +37,7 @@ import com.vsdeni.ejru.network.CategoriesRequest;
 import java.util.ArrayList;
 
 
-public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener, View.OnClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private CategoriesRequest mCategoriesRequest;
@@ -58,7 +59,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.left_menu);
+
+        findViewById(R.id.about).setOnClickListener(this);
 
         mDrawerAdapter = new DrawerAdapter(this, null, true);
         mDrawerList.setAdapter(mDrawerAdapter);
@@ -159,6 +162,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         setPage(position);
+    }
+
+    private void showAbout() {
+        startActivity(new Intent(this, AboutActivity.class));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.about:
+                showAbout();
+                break;
+        }
     }
 
     class CategoriesRequestListener implements RequestListener<Category.List> {
