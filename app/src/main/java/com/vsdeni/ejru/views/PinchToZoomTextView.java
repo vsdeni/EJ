@@ -2,13 +2,12 @@ package com.vsdeni.ejru.views;
 
 import android.content.Context;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.vsdeni.ejru.Utils;
+import com.vsdeni.ejru.helpers.Utils;
 
 /**
  * http://stackoverflow.com/a/20303367/1735100

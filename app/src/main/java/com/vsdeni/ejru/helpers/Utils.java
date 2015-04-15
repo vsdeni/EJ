@@ -1,4 +1,4 @@
-package com.vsdeni.ejru;
+package com.vsdeni.ejru.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;

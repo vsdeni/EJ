@@ -20,6 +20,7 @@ import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.dialogs.AppShareDialog;
 import com.vsdeni.ejru.fragments.ArticleFragment;
+import com.vsdeni.ejru.helpers.UrlGenerator;
 
 /**
  * Created by Admin on 06.09.2014.
@@ -133,8 +134,8 @@ public class ArticleActivity extends BaseActivity {
 
         String shareTitle = mArticleTitle;
         String shareBody = Html.fromHtml(mArticleSpoiler).toString();
-        String shareImage = getString(R.string.image_url, Consts.BASE_URL, mArticleId);
-        String shareUrl = getString(R.string.article_url, Consts.BASE_URL, mArticleId);
+        String shareImage = UrlGenerator.forImage(this, mArticleId);
+        String shareUrl = UrlGenerator.forArticle(this, mArticleId);
 
         // Create and show the dialog.
         DialogFragment newFragment = AppShareDialog.newInstance(shareTitle, shareBody, shareImage, shareUrl);

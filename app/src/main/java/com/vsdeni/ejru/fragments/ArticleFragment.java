@@ -32,7 +32,7 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
-import com.vsdeni.ejru.Utils;
+import com.vsdeni.ejru.helpers.Utils;
 import com.vsdeni.ejru.activities.BaseActivity;
 import com.vsdeni.ejru.data.ArticlesModelColumns;
 import com.vsdeni.ejru.model.Article;

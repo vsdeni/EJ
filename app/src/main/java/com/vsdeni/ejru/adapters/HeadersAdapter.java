@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.data.HeadersModelColumns;
+import com.vsdeni.ejru.helpers.UrlGenerator;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -65,7 +66,7 @@ public class HeadersAdapter extends CursorAdapter {
         if (cursor != null) {
             final ViewHolder viewHolder = (ViewHolder) view.getTag();
             final int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
-            String thumbnailUrl = Consts.BASE_URL + "/img/content/Notes/" + id + "/anons/anons350.jpg";
+            String thumbnailUrl = UrlGenerator.forImage(context, id);
 
             ImageLoader.getInstance().displayImage(thumbnailUrl, viewHolder.thumbnail, new ImageLoadingListener() {
                 @Override
