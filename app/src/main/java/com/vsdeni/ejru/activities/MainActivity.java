@@ -2,7 +2,6 @@ package com.vsdeni.ejru.activities;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -25,7 +24,6 @@ import com.facebook.appevents.AppEventsLogger;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.vsdeni.ejru.R;
-import com.vsdeni.ejru.SettingsActivity;
 import com.vsdeni.ejru.adapters.DrawerAdapter;
 import com.vsdeni.ejru.data.AuthorsModelColumns;
 import com.vsdeni.ejru.data.CategoriesModelColumns;
@@ -106,11 +104,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-    private void openSettings() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
     }
 
     private void refresh() {

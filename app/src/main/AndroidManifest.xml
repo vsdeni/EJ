@@ -36,11 +36,6 @@
             android:name="com.vsdeni.ejru.data.EjContentProvider"
             android:authorities="com.vsdeni.ejru.data.EjContentProvider"/>
 
-        <activity
-            android:name="com.vsdeni.ejru.SettingsActivity"
-            android:label="@string/title_activity_settings">
-        </activity>
-
 
         <!-- FACEBOOK INIT-->
         <activity
