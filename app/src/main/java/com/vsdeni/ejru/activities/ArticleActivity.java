@@ -3,30 +3,28 @@ package com.vsdeni.ejru.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.PopupMenu;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.share.Sharer;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.dialogs.AppShareDialog;
 import com.vsdeni.ejru.fragments.ArticleFragment;
 
 /**
  * Created by Admin on 06.09.2014.
  */
-public class ArticleActivity extends BaseActivity implements View.OnClickListener {
+public class ArticleActivity extends BaseActivity {
     private final static String TAG = ArticleActivity.class.getSimpleName();
 
     Toolbar mToolbar;
@@ -72,9 +70,6 @@ public class ArticleActivity extends BaseActivity implements View.OnClickListene
         TextView titleView = (TextView) mToolbar.findViewById(R.id.article_title);
         titleView.setText(mArticleTitle);
 
-        mShareButton = (ImageButton) mToolbar.findViewById(R.id.share);
-        mShareButton.setOnClickListener(this);
-
         if (savedInstanceState == null) {
             ArticleFragment fragment = ArticleFragment.newInstance(mArticleId, mArticleTitle, authorId, categoryId, authorName);
             getSupportFragmentManager()
@@ -100,24 +95,10 @@ public class ArticleActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    private void showPopupMenu() {
-        PopupMenu popupMenu = new PopupMenu(this, mShareButton);
-        popupMenu.getMenuInflater().inflate(R.menu.popup_share_menu, popupMenu.getMenu());
-
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_share_facebook:
-                        shareFacebook();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        popupMenu.show();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.article_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -126,21 +107,32 @@ public class ArticleActivity extends BaseActivity implements View.OnClickListene
             case android.R.id.home:
                 onBackPressed();
                 break;
+            case R.id.action_share:
+                showDialog();
+                break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.share:
-                showPopupMenu();
-        }
     }
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    void showDialog() {
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        DialogFragment newFragment = AppShareDialog.newInstance();
+        newFragment.show(ft, "dialog");
     }
 }
