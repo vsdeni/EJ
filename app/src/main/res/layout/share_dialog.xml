@@ -4,26 +4,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-    <ImageView
+    <ImageButton
         android:layout_alignParentLeft="true"
+        android:background="@drawable/vk_btn_selector"
         android:id="@+id/share_vk"
-        android:src="@drawable/ic_vk_share"
+        android:src="@drawable/ic_vk"
+        android:scaleType="centerInside"
+        android:padding="@dimen/share_button_padding"
         android:layout_width="@dimen/share_button_size"
         android:layout_height="@dimen/share_button_size"/>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/share_fb"
-        android:layout_marginLeft="5dp"
-        android:src="@drawable/ic_fb_share"
+        android:scaleType="centerInside"
+        android:padding="@dimen/share_button_padding"
+        android:background="@drawable/fb_btn_selector"
+        android:src="@drawable/ic_fb"
         android:layout_centerHorizontal="true"
         android:layout_width="@dimen/share_button_size"
         android:layout_height="@dimen/share_button_size"/>
 
-    <ImageView
+    <ImageButton
         android:id="@+id/share_tw"
+        android:scaleType="centerInside"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="5dp"
-        android:src="@drawable/ic_tw_share"
+        android:padding="@dimen/share_button_padding"
+        android:background="@drawable/twitter_btn_selector"
+        android:src="@drawable/ic_twitter"
         android:layout_width="@dimen/share_button_size"
         android:layout_height="@dimen/share_button_size"/>
 

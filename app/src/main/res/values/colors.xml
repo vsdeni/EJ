@@ -7,4 +7,13 @@
     <color name="brandBeige">#ddd4be</color>
     <color name="brandDarkGray">#3f3e40</color>
     <color name="veryLightGray">#22000000</color>
+
+    <color name="facebookLight">#3a589b</color>
+    <color name="facebookDark">#29437e</color>
+
+    <color name="vkontakteLight">#4c75a3</color>
+    <color name="vkontakteDark">#37587d</color>
+
+    <color name="twitterLight">#67c9e8</color>
+    <color name="twitterDark">#58aac4</color>
 </resources>
