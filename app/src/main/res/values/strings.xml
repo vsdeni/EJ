@@ -13,6 +13,12 @@
     <string name="action_share_facebook">Facebook</string>
     <string name="action_share_twitter">Twitter</string>
     <string name="action_share_vk">VK</string>
-    <string name="action_share_other">Еще...</string>
+    <string name="share_more">Еще...</string>
+    <string name="share_cancel">Отмена</string>
+
+    <string name="image_url">%1$s/img/content/Notes/%2$s/anons/anons350.jpg</string>
+    <string name="article_url">%1$s?a=note&amp;id=%2$s</string>
+
+    <string name="share_title">EJ.RU - %1$s</string>
 
 </resources>

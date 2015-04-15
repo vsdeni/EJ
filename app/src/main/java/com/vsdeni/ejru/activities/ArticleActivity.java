@@ -131,8 +131,13 @@ public class ArticleActivity extends BaseActivity {
         }
         ft.addToBackStack(null);
 
+        String shareTitle = mArticleTitle;
+        String shareBody = Html.fromHtml(mArticleSpoiler).toString();
+        String shareImage = getString(R.string.image_url, Consts.BASE_URL, mArticleId);
+        String shareUrl = getString(R.string.article_url, Consts.BASE_URL, mArticleId);
+
         // Create and show the dialog.
-        DialogFragment newFragment = AppShareDialog.newInstance();
+        DialogFragment newFragment = AppShareDialog.newInstance(shareTitle, shareBody, shareImage, shareUrl);
         newFragment.show(ft, "dialog");
     }
 }
