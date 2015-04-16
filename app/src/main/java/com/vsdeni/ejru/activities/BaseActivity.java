@@ -8,6 +8,7 @@ import com.facebook.CallbackManager;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.octo.android.robospice.SpiceManager;
+import com.vk.sdk.VKUIHelper;
 import com.vsdeni.ejru.listeners.ShareListener;
 import com.vsdeni.ejru.network.RequestService;
 
@@ -32,6 +33,18 @@ public abstract class BaseActivity extends ActionBarActivity implements ShareLis
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        VKUIHelper.onResume(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        VKUIHelper.onDestroy(this);
+    }
+
+    @Override
     public void onFacebookShare(ShareLinkContent content) {
         if (ShareDialog.canShow(ShareLinkContent.class)) {
             shareDialog.show(content);
@@ -42,6 +55,7 @@ public abstract class BaseActivity extends ActionBarActivity implements ShareLis
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
+        VKUIHelper.onActivityResult(this, requestCode, resultCode, data);
     }
 
     public SpiceManager getSpiceManager() {
