@@ -145,4 +145,14 @@ public class Utils {
         return 0;
     }
 
+    public static String extractFirstSentencesFromText(String text, int count) {
+        String[] sentences = text.split("\\.");
+        String result = "";
+        int total = Math.min(sentences.length, count);
+        for (int i = 0; i < total; i++) {
+            result += (sentences[i] + ".");
+        }
+        return result;
+    }
+
 }

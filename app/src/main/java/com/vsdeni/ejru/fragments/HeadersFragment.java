@@ -136,6 +136,7 @@ public class HeadersFragment extends Fragment implements LoaderManager.LoaderCal
         intent.putExtra("article_spoiler", header.getSpoiler());
         String authorName = cursor.getString(cursor.getColumnIndex("author_name"));
         intent.putExtra("author_name", authorName == null ? "" : authorName);
+        intent.putExtra("has_thumbnail", view.findViewById(R.id.thumbnail).getVisibility() == View.VISIBLE);
         startActivity(intent);
     }
 

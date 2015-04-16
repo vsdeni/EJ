@@ -1,23 +1,37 @@
 package com.vsdeni.ejru.dialogs;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 
+import com.facebook.share.model.ShareLinkContent;
 import com.vsdeni.ejru.R;
+import com.vsdeni.ejru.listeners.ShareListener;
 
 /**
  * Created by Denis on 15.04.2015.
  */
-public class AppShareDialog extends DialogFragment {
+public class AppShareDialog extends DialogFragment implements View.OnClickListener {
     String mTitle;
     String mBody;
     String mImage;
     String mLink;
+
+    ShareListener mListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mListener = (ShareListener) activity;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +67,7 @@ public class AppShareDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = getActivity().getLayoutInflater().inflate(R.layout.share_dialog, null);
+        view.findViewById(R.id.share_fb).setOnClickListener(this);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle(R.string.action_share)
@@ -69,5 +84,28 @@ public class AppShareDialog extends DialogFragment {
                     }
                 }).create();
         return dialog;
+    }
+
+    private void shareFb() {
+        ShareLinkContent.Builder linkContent = new ShareLinkContent.Builder()
+                .setContentTitle(mTitle)
+                .setContentDescription(Html.fromHtml(mBody).toString())
+                .setContentUrl(Uri.parse(mLink));
+
+        if (!TextUtils.isEmpty(mImage)) {
+            linkContent.setImageUrl(Uri.parse(mImage));
+        }
+
+        mListener.onFacebookShare(linkContent.build());
+        dismiss();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.share_fb:
+                shareFb();
+                break;
+        }
     }
 }

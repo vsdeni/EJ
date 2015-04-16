@@ -1,7 +1,5 @@
 package com.vsdeni.ejru.activities;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -10,17 +8,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.facebook.CallbackManager;
-import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
-import com.vsdeni.ejru.Consts;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.dialogs.AppShareDialog;
 import com.vsdeni.ejru.fragments.ArticleFragment;
 import com.vsdeni.ejru.helpers.UrlGenerator;
+import com.vsdeni.ejru.helpers.Utils;
 
 /**
  * Created by Admin on 06.09.2014.
@@ -29,14 +25,12 @@ public class ArticleActivity extends BaseActivity {
     private final static String TAG = ArticleActivity.class.getSimpleName();
 
     Toolbar mToolbar;
-    ImageButton mShareButton;
-
-    CallbackManager callbackManager;
-    ShareDialog shareDialog;
 
     String mArticleTitle;
     int mArticleId;
     String mArticleSpoiler;
+
+    private boolean mHasThumbnail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +47,7 @@ public class ArticleActivity extends BaseActivity {
             mArticleId = args.getInt("article_id");
             mArticleTitle = args.getString("article_title");
             mArticleSpoiler = args.getString("article_spoiler");
+            mHasThumbnail = args.getBoolean("has_thumbnail");
             authorId = args.getInt("author_id");
             categoryId = args.getInt("category_id");
             authorName = args.getString("author_name");
@@ -83,19 +78,6 @@ public class ArticleActivity extends BaseActivity {
         shareDialog = new ShareDialog(this);
     }
 
-    private void shareFacebook() {
-        if (ShareDialog.canShow(ShareLinkContent.class)) {
-            ShareLinkContent linkContent = new ShareLinkContent.Builder()
-                    .setContentTitle(mArticleTitle)
-                    .setImageUrl(Uri.parse(Consts.BASE_URL + "/img/content/Notes/" + mArticleId + "/anons/anons350.jpg"))
-                    .setContentDescription(Html.fromHtml(mArticleSpoiler).toString())
-                    .setContentUrl(Uri.parse(Consts.BASE_URL + "?a=note&id=" + mArticleId))
-                    .build();
-
-            shareDialog.show(linkContent);
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.article_menu, menu);
@@ -115,12 +97,6 @@ public class ArticleActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-
     void showDialog() {
         // DialogFragment.show() will take care of adding the fragment
         // in a transaction.  We also want to remove any currently showing
@@ -133,12 +109,16 @@ public class ArticleActivity extends BaseActivity {
         ft.addToBackStack(null);
 
         String shareTitle = mArticleTitle;
-        String shareBody = Html.fromHtml(mArticleSpoiler).toString();
-        String shareImage = UrlGenerator.forImage(this, mArticleId);
+        String shareBody = Utils.extractFirstSentencesFromText(Html.fromHtml(mArticleSpoiler).toString(), 2);
+        String shareImage = null;
+        if (mHasThumbnail) {
+            shareImage = UrlGenerator.forImage(this, mArticleId);
+        }
         String shareUrl = UrlGenerator.forArticle(this, mArticleId);
 
         // Create and show the dialog.
         DialogFragment newFragment = AppShareDialog.newInstance(shareTitle, shareBody, shareImage, shareUrl);
         newFragment.show(ft, "dialog");
     }
+
 }
