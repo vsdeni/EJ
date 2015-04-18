@@ -109,7 +109,7 @@ public class ArticleActivity extends BaseActivity {
         String shareBody = Utils.extractFirstSentencesFromText(Html.fromHtml(mArticleSpoiler).toString(), 2);
         String shareImage = null;
         if (mHasThumbnail) {
-            shareImage = UrlGenerator.forImage(this, mArticleId);
+            shareImage = UrlGenerator.forImage(this, mArticleId, true);
         }
         String shareUrl = UrlGenerator.forArticle(this, mArticleId);
 

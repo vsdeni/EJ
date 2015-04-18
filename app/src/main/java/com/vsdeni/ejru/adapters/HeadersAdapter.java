@@ -66,9 +66,10 @@ public class HeadersAdapter extends CursorAdapter {
         if (cursor != null) {
             final ViewHolder viewHolder = (ViewHolder) view.getTag();
             final int id = cursor.getInt(cursor.getColumnIndex(HeadersModelColumns.ID));
-            String thumbnailUrl = UrlGenerator.forImage(context, id);
+            final String thumbnailUrlBig = UrlGenerator.forImage(context, id, false);
+            final String thumbnailUrlSmall = UrlGenerator.forImage(context, id, true);
 
-            ImageLoader.getInstance().displayImage(thumbnailUrl, viewHolder.thumbnail, new ImageLoadingListener() {
+            ImageLoader.getInstance().displayImage(thumbnailUrlBig, viewHolder.thumbnail, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
                     viewHolder.thumbnail.setVisibility(View.GONE);
@@ -77,6 +78,10 @@ public class HeadersAdapter extends CursorAdapter {
                 @Override
                 public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                     viewHolder.thumbnail.setVisibility(View.GONE);
+                    if (imageUri.equalsIgnoreCase(thumbnailUrlBig)) {
+                        //if big picture loading failed lets try to load small
+                        ImageLoader.getInstance().displayImage(thumbnailUrlSmall, viewHolder.thumbnail, this);
+                    }
                 }
 
                 @Override

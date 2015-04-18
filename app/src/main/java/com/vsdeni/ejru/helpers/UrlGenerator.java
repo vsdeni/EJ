@@ -9,8 +9,12 @@ import com.vsdeni.ejru.R;
  * Created by Denis on 15.04.2015.
  */
 public class UrlGenerator {
-    public static String forImage(Context context, int articleId) {
-        return context.getString(R.string.image_url, Consts.BASE_URL, articleId);
+    public static String forImage(Context context, int articleId, boolean small) {
+        if (small) {
+            return context.getString(R.string.image_url_small, Consts.BASE_URL, articleId);
+        } else {
+            return context.getString(R.string.image_url, Consts.BASE_URL, articleId);
+        }
     }
 
     public static String forArticle(Context context, int articleId) {

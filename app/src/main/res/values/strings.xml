@@ -21,6 +21,7 @@
     <string name="share_cancel">Отмена</string>
 
     <string name="image_url">%1$s/img/content/Notes/%2$s/anons/anons350.jpg</string>
+    <string name="image_url_small">%1$s/img/content/Notes/%2$s/anons/anons160.jpg</string>
     <string name="article_url">%1$s?a=note&amp;id=%2$s</string>
     <string name="author_url">%1$s?a=author&amp;id=%2$s</string>
 
