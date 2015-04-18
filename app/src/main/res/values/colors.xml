@@ -6,7 +6,9 @@
     <color name="brandDarkBeige">#b5a78d</color>
     <color name="brandBeige">#ddd4be</color>
     <color name="brandDarkGray">#3f3e40</color>
+    <color name="darkGray">#303031</color>
     <color name="veryLightGray">#22000000</color>
+    <color name="brandYellow">#f8d974</color>
 
     <color name="facebookLight">#3a589b</color>
     <color name="facebookDark">#29437e</color>

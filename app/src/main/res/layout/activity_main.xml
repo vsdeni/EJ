@@ -45,14 +45,21 @@
                 android:divider="#11FFFFFF"
                 android:dividerHeight="0.5dp"/>
 
+            <View
+                android:background="#11FFFFFF"
+                android:id="@+id/divider"
+                android:layout_below="@id/left_menu"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"/>
+
             <Button
                 android:textColor="@color/brandBeige"
                 android:padding="12dp"
                 android:gravity="left"
-                android:layout_below="@id/left_menu"
+                android:layout_below="@id/divider"
                 android:id="@+id/about"
                 android:text="@string/menu_item_about"
-                android:background="@android:color/transparent"
+                android:background="@drawable/drawer_button_selector"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </RelativeLayout>

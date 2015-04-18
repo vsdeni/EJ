@@ -173,6 +173,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         switch (v.getId()) {
             case R.id.about:
                 showAbout();
+                mDrawerLayout.closeDrawers();
                 break;
         }
     }
