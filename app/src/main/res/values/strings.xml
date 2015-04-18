@@ -7,6 +7,7 @@
     <string name="action_refresh">Обновить</string>
     <string name="error_missed_connection">Отсутствует интернет-соединение</string>
     <string name="facebook_app_id">417515408410622</string>
+    <string name="vk_app_id">4880308</string>
 
     <string name="action_share">Поделиться</string>
 
@@ -32,5 +33,6 @@
     <string name="menu_item_about">О редакции</string>
     <string name="chief_editor">шеф-редактор</string>
     <string name="general_director">генеральный директор</string>
+    <string name="success_sharing_message">Вы успешно поделились статьей</string>
 
 </resources>

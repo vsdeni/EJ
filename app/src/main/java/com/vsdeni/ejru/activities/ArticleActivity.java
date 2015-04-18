@@ -73,9 +73,6 @@ public class ArticleActivity extends BaseActivity {
                     .add(R.id.content_frame, fragment)
                     .commit();
         }
-
-        callbackManager = CallbackManager.Factory.create();
-        shareDialog = new ShareDialog(this);
     }
 
     @Override
