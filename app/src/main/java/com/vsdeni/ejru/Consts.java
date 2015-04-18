@@ -5,4 +5,5 @@ package com.vsdeni.ejru;
  */
 public class Consts {
     public static final String BASE_URL = "http://ejnew.org/";
+    public static final String BASE_API_URL = String.format("%s/api/", BASE_URL);
 }

@@ -13,17 +13,17 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.facebook.share.model.ShareLinkContent;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
-import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
-import com.vk.sdk.api.VKRequest;
-import com.vk.sdk.api.VKResponse;
 import com.vsdeni.ejru.App;
 import com.vsdeni.ejru.R;
 import com.vsdeni.ejru.listeners.ShareListener;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by Denis on 15.04.2015.
@@ -78,6 +78,7 @@ public class AppShareDialog extends DialogFragment implements View.OnClickListen
         View view = getActivity().getLayoutInflater().inflate(R.layout.share_dialog, null);
         view.findViewById(R.id.share_fb).setOnClickListener(this);
         view.findViewById(R.id.share_vk).setOnClickListener(this);
+        view.findViewById(R.id.share_tw).setOnClickListener(this);
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle(R.string.action_share)
@@ -110,7 +111,7 @@ public class AppShareDialog extends DialogFragment implements View.OnClickListen
     }
 
     private void shareVk() {
-        VKAccessToken token = VKAccessToken.tokenFromSharedPreferences(App.getContext(), App.sTokenKey);
+        VKAccessToken token = VKSdk.getAccessToken();
         VKParameters content;
         content = VKParameters.from(
                 VKApiConst.ATTACHMENTS,
@@ -119,6 +120,17 @@ public class AppShareDialog extends DialogFragment implements View.OnClickListen
             content.put(VKApiConst.USER_ID, token.userId);
         }
         mListener.onVkShare(content);
+    }
+
+    private void shareTwitter() {
+        TweetComposer.Builder builder = new TweetComposer.Builder(getActivity())
+                .text(mTitle);
+        try {
+            builder.url(new URL(mLink));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        builder.show();
     }
 
     @Override
@@ -130,6 +142,9 @@ public class AppShareDialog extends DialogFragment implements View.OnClickListen
                 break;
             case R.id.share_vk:
                 shareVk();
+                break;
+            case R.id.share_tw:
+                shareTwitter();
                 break;
         }
     }

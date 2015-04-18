@@ -3,6 +3,7 @@ package com.vsdeni.ejru.network;
 import android.app.Notification;
 
 import com.octo.android.robospice.retrofit.RetrofitGsonSpiceService;
+import com.vsdeni.ejru.Consts;
 
 /**
  * Created by Admin on 11.08.2014.
@@ -23,6 +24,6 @@ public class RequestService extends RetrofitGsonSpiceService {
 
     @Override
     protected String getServerUrl() {
-        return "http://ejrus.ru/api/";
+        return Consts.BASE_API_URL;
     }
 }
