@@ -155,4 +155,8 @@ public class Utils {
         return result;
     }
 
+    public static String getKey(String key) {
+        return key.replace('5', '0').replace('6', '1');
+    }
+
 }

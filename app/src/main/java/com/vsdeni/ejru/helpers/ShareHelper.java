@@ -66,13 +66,13 @@ public class ShareHelper {
                 checkUnpublishedPosts(newToken);
             }
 
-        }, context.getString(R.string.vk_app_id), VKSdk.getAccessToken());
+        }, Utils.getKey(context.getString(R.string.vk_app_id)), VKSdk.getAccessToken());
     }
 
     public static void initTwitter(Context context) {
         TwitterAuthConfig authConfig =
-                new TwitterAuthConfig(context.getString(R.string.twitter_consumer_key),
-                        context.getString(R.string.twitter_consumer_secret));
+                new TwitterAuthConfig(Utils.getKey(context.getString(R.string.twitter_consumer_key)),
+                        Utils.getKey(context.getString(R.string.twitter_consumer_secret)));
         Fabric.with(context, new Twitter(authConfig));
         Fabric.with(context, new TweetComposer());
     }

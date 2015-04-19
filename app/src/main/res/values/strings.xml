@@ -8,9 +8,6 @@
     <string name="error_missed_connection">Отсутствует интернет-соединение</string>
 
     <string name="facebook_app_id">417515408410622</string>
-    <string name="vk_app_id">4880308</string>
-    <string name="twitter_consumer_key">hX1pevOX3RFVOxIMdzVgsxPth</string>
-    <string name="twitter_consumer_secret">0XHkvilPJfaLlu9vEGNOIkXRp78xvrVNOvHspMrSPmxrZCepi2</string>
 
     <string name="action_share">Поделиться</string>
 
