@@ -1,5 +1,6 @@
 package com.vsdeni.ejru.activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -39,19 +40,15 @@ public class AboutActivity extends BaseActivity {
     }
 
     private TextView getTextView(Author author) {
-        String value;
-        if (author.getId() > 0) {
-            value = String.format("<html><a href=\"%s\">%s</a>%s</html>",
-                    UrlGenerator.forAuthor(this, author.getId()),
-                    author.getName(),
-                    !TextUtils.isEmpty(author.getAdditionInfo()) ? " - " + author.getAdditionInfo() : "");
-        } else {
-            value = author.getName() + (!TextUtils.isEmpty(author.getAdditionInfo()) ? " - " + author.getAdditionInfo() : "");
-        }
+
+        String value = String.format("<html><b>%s</b>%s</html>",
+                author.getName(),
+                !TextUtils.isEmpty(author.getAdditionInfo()) ? " - " + author.getAdditionInfo() : "");
 
         TextView textView = new TextView(this);
         textView.setText(value);
         textView.setTextSize(16);
+        textView.setTextColor(Color.BLACK);
         textView.setText(Html.fromHtml(value));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
         textView.setPadding(0, 0, 0, Utils.convertDpToPixel(10, this));

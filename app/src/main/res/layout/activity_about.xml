@@ -17,7 +17,6 @@
             android:layout_width="wrap_content"
             android:textStyle="bold"
             android:textSize="20sp"
-            android:textColor="@color/brandBurgundy"
             android:layout_height="wrap_content"/>
     </android.support.v7.widget.Toolbar>
 
@@ -34,12 +33,13 @@
                 android:id="@+id/editors_magazine_label"
                 android:text="@string/editors_magazine"
                 android:textSize="20sp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/brandBurgundy"
                 android:layout_width="wrap_content"
+                android:textStyle="bold"
                 android:layout_height="wrap_content"/>
 
             <LinearLayout
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_below="@id/editors_magazine_label"
                 android:id="@+id/editors_container"
                 android:orientation="vertical"
@@ -51,13 +51,14 @@
                 android:layout_below="@id/editors_container"
                 android:id="@+id/editors_web_label"
                 android:text="@string/editors_web"
+                android:textStyle="bold"
                 android:textSize="20sp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/brandBurgundy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <LinearLayout
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_below="@id/editors_web_label"
                 android:id="@+id/web_editors_container"
                 android:orientation="vertical"

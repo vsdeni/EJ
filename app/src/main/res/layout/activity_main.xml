@@ -38,17 +38,19 @@
             android:layout_height="match_parent">
 
             <ListView
+                android:layout_alignParentTop="true"
                 android:id="@+id/left_menu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:choiceMode="singleChoice"
                 android:divider="#11FFFFFF"
+                android:layout_above="@+id/divider"
                 android:dividerHeight="0.5dp"/>
 
             <View
                 android:background="#11FFFFFF"
                 android:id="@+id/divider"
-                android:layout_below="@id/left_menu"
+                android:layout_above="@+id/about"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"/>
 
@@ -56,8 +58,8 @@
                 android:textColor="@color/brandBeige"
                 android:padding="12dp"
                 android:gravity="left"
-                android:layout_below="@id/divider"
                 android:id="@+id/about"
+                android:layout_alignParentBottom="true"
                 android:text="@string/menu_item_about"
                 android:background="@drawable/drawer_button_selector"
                 android:layout_width="match_parent"

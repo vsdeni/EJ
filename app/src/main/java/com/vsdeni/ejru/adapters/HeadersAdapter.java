@@ -77,10 +77,11 @@ public class HeadersAdapter extends CursorAdapter {
 
                 @Override
                 public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    viewHolder.thumbnail.setVisibility(View.GONE);
                     if (imageUri.equalsIgnoreCase(thumbnailUrlBig)) {
                         //if big picture loading failed lets try to load small
                         ImageLoader.getInstance().displayImage(thumbnailUrlSmall, viewHolder.thumbnail, this);
+                    } else {
+                        viewHolder.thumbnail.setVisibility(View.GONE);
                     }
                 }
 
