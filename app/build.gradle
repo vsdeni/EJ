@@ -20,7 +20,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.vsdeni.ejru"
+        applicationId "com.ejnew.news"
         minSdkVersion 15
         targetSdkVersion 21
         versionCode 1
