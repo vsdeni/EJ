@@ -32,8 +32,13 @@
     <string name="web_editor_2">Мария Каменская</string>
     <string name="web_editor_3">Светлана Солодовник</string>
     <string name="menu_item_about">О редакции</string>
+    <string name="menu_item_settings">Настройки</string>
     <string name="chief_editor">шеф-редактор</string>
     <string name="general_director">генеральный директор</string>
     <string name="success_sharing_message">Вы успешно поделились статьей</string>
-
+    <string name="font_size">Размер шрифта:</string>
+    <string name="font_size_standart">Стандартный</string>
+    <string name="font_size_big">Большой</string>
+    <string name="font_size_very_big">Очень большой</string>
+    <string name="font_size_large">Огромный</string>
 </resources>

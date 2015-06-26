@@ -11,6 +11,8 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ejnew.news.enums.FontSize;
+import com.ejnew.news.helpers.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -55,6 +57,14 @@ public class HeadersAdapter extends CursorAdapter {
         viewHolder.title = (TextView) view.findViewById(R.id.title);
         viewHolder.category = (TextView) view.findViewById(R.id.category);
         view.setTag(viewHolder);
+
+        FontSize fontSize = FontSize.getById(Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, mContext));
+        viewHolder.spoiler.setTextSize(Utils.convertPixelsToDp(mContext.getResources().getDimension(R.dimen.header_spoiler_def_text_size), mContext) + (fontSize.ordinal() * 6));
+        viewHolder.title.setTextSize(Utils.convertPixelsToDp(mContext.getResources().getDimension(R.dimen.header_title_def_text_size), mContext) + (fontSize.ordinal() * 4));
+
+        viewHolder.author.setTextSize(Utils.convertPixelsToDp(mContext.getResources().getDimension(R.dimen.header_meta_def_text_size), mContext) + (fontSize.ordinal() * 2));
+        viewHolder.date.setTextSize(Utils.convertPixelsToDp(mContext.getResources().getDimension(R.dimen.header_meta_def_text_size), mContext) + (fontSize.ordinal() * 2));
+        viewHolder.category.setTextSize(Utils.convertPixelsToDp(mContext.getResources().getDimension(R.dimen.header_meta_def_text_size), mContext) + (fontSize.ordinal() * 2));
         return view;
     }
 

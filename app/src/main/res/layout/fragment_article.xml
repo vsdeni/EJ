@@ -35,7 +35,7 @@
                     android:shadowRadius="5"
                     tools:text="Киргуду\nВИКТОР ШЕНДЕРОВИЧ"
                     android:textColor="@color/veryLightGray"
-                    android:textSize="20sp"/>
+                    android:textSize="@dimen/article_title_def_text_size"/>
 
                 <WebView
                     android:id="@+id/body"

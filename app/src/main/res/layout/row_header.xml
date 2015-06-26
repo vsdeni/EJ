@@ -14,26 +14,26 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
-        tools:text="17 сентября 2014"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp"/>
+        android:textSize="@dimen/header_meta_def_text_size"
+        tools:text="17 сентября 2014"/>
 
     <com.ejnew.news.views.TitleTextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
         android:layout_below="@id/date"
-        tools:text="Итоги недели. Ничего личного"
         android:textColor="@android:color/black"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/header_title_def_text_size"
+        android:textStyle="bold"
+        tools:text="Итоги недели. Ничего личного"/>
 
     <ImageView
-        android:layout_marginTop="5dp"
-        android:layout_below="@id/title"
         android:id="@+id/thumbnail"
         android:layout_width="match_parent"
         android:layout_height="175dp"
+        android:layout_below="@id/title"
+        android:layout_marginTop="5dp"
         android:scaleType="fitCenter"/>
 
     <TextView
@@ -47,27 +47,29 @@
         android:layout_toRightOf="@id/date"
         android:text="Александр Гольц"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp"/>
+        android:textSize="@dimen/header_meta_def_text_size"
+        />
 
     <TextView
-        android:layout_marginTop="5dp"
         android:id="@+id/category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="5dp"
         android:background="@android:color/darker_gray"
-        android:textColor="@android:color/white"
-        tools:text="В обществе"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
-        android:textSize="12sp"
-        android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/header_meta_def_text_size"
+        tools:text="В обществе"/>
 
     <TextView
-        android:layout_marginTop="5dp"
         android:id="@+id/spoiler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/thumbnail"
+        android:layout_marginTop="5dp"
+        android:textSize="@dimen/header_spoiler_def_text_size"
         tools:text="asdf;lkajsf sd;lf ks;flasjl;kjfsa"/>
 
 </RelativeLayout>

@@ -28,6 +28,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ejnew.news.enums.FontSize;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.ejnew.news.Consts;
@@ -82,6 +83,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
         mScrollView = (ScrollView) mRootView.findViewById(R.id.scroll_view);
         mProgressTitle = (TextView) mRootView.findViewById(R.id.progress_title);
+
+        FontSize fontSize = FontSize.getById(Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity()));
+        mProgressTitle.setTextSize(Utils.convertPixelsToDp(getResources().getDimension(R.dimen.article_title_def_text_size), getActivity()) + (fontSize.ordinal() * 4));
 
         mProgressTitle.setVisibility(View.GONE);
 
@@ -180,6 +184,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 } else {
                     webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
                 }
+
+                FontSize fontSize = FontSize.getById(Utils.Prefs.getInt(Utils.Prefs.FONT_SIZE, 0, getActivity()));
+                webSettings.setDefaultFontSize(fontSize.getSize());
                 mWebView.setWebViewClient(new EjWebClient(new PageListener() {
                     @Override
                     public void onFinished() {

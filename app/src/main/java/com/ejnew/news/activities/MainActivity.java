@@ -62,6 +62,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerList = (ListView) findViewById(R.id.left_menu);
 
         findViewById(R.id.about).setOnClickListener(this);
+        findViewById(R.id.settings).setOnClickListener(this);
 
         mDrawerAdapter = new DrawerAdapter(this, null, true);
         mDrawerList.setAdapter(mDrawerAdapter);
@@ -168,11 +169,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         startActivity(new Intent(this, AboutActivity.class));
     }
 
+    private void showSettings() {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.about:
                 showAbout();
+                mDrawerLayout.closeDrawers();
+                break;
+            case R.id.settings:
+                showSettings();
                 mDrawerLayout.closeDrawers();
                 break;
         }
