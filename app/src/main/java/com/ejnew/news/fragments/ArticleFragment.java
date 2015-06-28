@@ -2,6 +2,7 @@ package com.ejnew.news.fragments;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -129,6 +130,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     }
 
+    @SuppressLint("NewApi")
     private void moveArticleToTop(final float curMargin, final float diff) {
         Animation a = new Animation() {
             @Override
@@ -141,19 +143,23 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         a.setDuration(400);
         mScrollView.startAnimation(a);
 
-        Integer colorFrom = getResources().getColor(R.color.veryLightGray);
-        Integer colorTo = getResources().getColor(android.R.color.black);
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+            Integer colorFrom = getResources().getColor(R.color.veryLightGray);
+            Integer colorTo = getResources().getColor(android.R.color.black);
+            ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                mProgressTitle.setTextColor((Integer) animator.getAnimatedValue());
-            }
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    mProgressTitle.setTextColor((Integer) animator.getAnimatedValue());
+                }
 
-        });
-        colorAnimation.setDuration(400);
-        colorAnimation.start();
+            });
+            colorAnimation.setDuration(400);
+            colorAnimation.start();
+        } else {
+            mProgressTitle.setTextColor(getResources().getColor(android.R.color.black));
+        }
     }
 
     private String getHtmlData(String bodyHTML) {
